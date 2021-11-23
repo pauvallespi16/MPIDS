@@ -64,6 +64,33 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
+bool check_PIDS(vector <int> subset) {
+    for (set <int> s : neighbors){
+        int count = 0;
+        for (int i : s){
+            for (int j : subset)
+                if (i == j) {count++; break;}
+            
+            if (count < s.size()) return true;
+        }
+    }  
+}
+
+bool check_MPIDS(vector <int> subset) {
+   for (int s : subset) {
+       for (int i=0; i<neighbors.size(); i++){
+           bool found = false;
+           for (int j : subset) {
+               if (j != s && i == j) {found = true; break;}
+               if (j != s && neighbors[i].find(j) != neighbors[i].end()) {found = true; break;} 
+           }
+           
+           if (!found) return false;
+       }
+   }
+   return true;
+}
+
 void read_parameters(int argc, char **argv) {
     int iarg = 1;
 
