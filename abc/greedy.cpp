@@ -76,17 +76,28 @@ bool check_PIDS(vector <int> subset) {
     }  
 }
 
+
+/*
+if there is one iteration (i) with false, we know it's not dominant so break
+*/
 bool check_MPIDS(vector <int> subset) {
    for (int s : subset) {
+       bool found = false;
        for (int i=0; i<neighbors.size(); i++){
-           bool found = false;
+           bool foundIn = false;
+
+           // find out if the node is connected to any vertex from the subset
            for (int j : subset) {
                if (j != s && i == j) {found = true; break;}
                if (j != s && neighbors[i].find(j) != neighbors[i].end()) {found = true; break;} 
            }
            
-           if (!found) return false;
+           // if the vertex is not found, then we have found no cases in which the node isn't connected
+           if (!foundIn) {found = true; break;}
        }
+
+        // signifies that no node is missing a connection when removing the node, graph is still dominant
+        if (!found) return false;
    }
    return true;
 }
