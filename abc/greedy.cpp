@@ -67,6 +67,58 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
+bool check_PIDS(vector <int> subset) {
+    for (set <int> s : neighbors){
+        int count = 0;
+        for (int i : s){
+            for (int j : subset)
+                if (i == j) {count++; break;}
+            
+            if (count < s.size()/2) return false;
+        }
+    }  
+    return true;
+}
+
+/*
+if there is one iteration (i) with false, we know it's not dominant so break
+*/
+bool check_MPIDS(vector <int> subset) {
+   for (int s : subset) {
+       bool found = false;
+       for (int i=0; i<neighbors.size(); i++){
+           bool foundIn = false;
+
+           // find out if the node is connected to any vertex from the subset
+           for (int j : subset) {
+               if (j != s && i == j) {found = true; break;}
+               if (j != s && neighbors[i].find(j) != neighbors[i].end()) {found = true; break;} 
+           }
+           
+           // if the vertex is not found, then we have found no cases in which the node isn't connected
+           if (!foundIn) {found = true; break;}
+       }
+
+        // signifies that no node is missing a connection when removing the node, graph is still dominant
+        if (!found) return false;
+   }
+   return true;
+}
+
+bool comparePairs (pair <int, int> p1, pair <int, int> p2){
+    if (p1.second == p2.second)
+        return p1.first < p2.first;
+    return p1.second < p2.second;
+}
+
+void pan_greedy () {
+    vector <pair <int, int> > aux;
+    for (int i=0; i<neighbors.size(); i++){
+        aux[i] = pair <int, int> (i, neighbors[i].size());
+    }
+    sort(aux.begin(), aux.end(), comparePairs);
+}
+
 void read_parameters(int argc, char **argv) {
     int iarg = 1;
 
@@ -100,7 +152,7 @@ Main function
 
 int main( int argc, char **argv ) {
 
-    read_parameters(argc,argv);
+    /*read_parameters(argc,argv);
     
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(2) << std::fixed;
@@ -141,7 +193,7 @@ int main( int argc, char **argv ) {
     }
 
     // the computation time starts now
-    Timer timer;
+    Timer timer;*/
 
     // Example for requesting the elapsed computation time at any moment: 
     // double ct = timer.elapsed_time(Timer::VIRTUAL);
@@ -152,6 +204,13 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen: 
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
+
+    vector <pair <int, int>> aux = {pair<int, int>(0, 10), pair<int, int>(1, 20), pair<int, int>(2, 20), pair<int, int>(3, 2)};
+    sort(aux.begin(), aux.end(), comparePairs);
+
+    for (pair <int, int> a : aux){
+        cout << a.first << " " << a.second << endl;
+    }
 }
 
 bool check_MPIDS(vector <set <int> > subset) {
