@@ -19,7 +19,6 @@
 
 #include "Timer.h"
 #include "Random.h"
-#include "Basics.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -69,29 +68,6 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
-bool check_PIDS(set <int> subset) {
-    for (set <int> s : neighbors){
-        int count = 0;
-        for (int i : s) {
-            if (subset.find(i) != subset.end())
-                count++;
-        }
-        if (count < s.size()/2.f) return false;
-    }  
-    return true;
-}
-
-bool check_MPIDS(set <int> subset) {
-    if (!check_PIDS(subset)) return false;
-    set<int> aux = subset;
-    for (int s : subset) {
-        aux.erase(s);
-        if (check_PIDS(aux)) return false;
-        aux.insert(s);
-    }
-    return true;
-}
-
 void read_parameters(int argc, char **argv) {
     int iarg = 1;
 
@@ -113,6 +89,29 @@ void read_parameters(int argc, char **argv) {
 
         iarg++;
     }
+}
+
+bool check_PIDS(unordered_set <int> subset) {
+    for (set <int> s : neighbors){
+        int count = 0;
+        for (int i : s) {
+            if (subset.find(i) != subset.end())
+                count++;
+        }
+        if (count < s.size()/2.f) return false;
+    }
+    return true;
+}
+
+bool check_MPIDS(unordered_set <int> subset) {
+    if (!check_PIDS(subset)) return false;
+    unordered_set<int> aux = subset;
+    for (int s : subset) {
+        aux.erase(s);
+        if (check_PIDS(aux)) return false;
+        aux.insert(s);
+    }
+    return true;
 }
 
 // Linear time sort
@@ -153,8 +152,8 @@ bool check_adjacent_neighbors(const set<int>& node_neighbors, vector<int>& neigh
     return false;
 }
 
-set<int> greedy() {
-    set<int> solution;
+unordered_set<int> greedy() {
+    unordered_set<int> solution;
     vector<int> neighbors_popularity(neighbors.size(), 0);
     vector<int> index_array(neighbors.size());
 
@@ -244,7 +243,7 @@ int main( int argc, char **argv ) {
     neighbors[6] = {5};
     neighbors[7] = {4};*/
 
-    set<int> sol_set = greedy();
+    unordered_set<int> sol_set = greedy();
     if (check_PIDS(sol_set)) {
         cout << "TIME:" << ct << endl;
         cout << "NODES:" << sol_set.size() << endl;
