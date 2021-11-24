@@ -1,7 +1,7 @@
-TARGET = greedy local_search 
-CXXFLAGS = -ansi -O3 -fpermissive -std=c++17 
-OBJS = Random.o Timer.o
-CPLOBJS = Random.o Timer.o
+TARGET = greedy local_search
+CXXFLAGS = -ansi -O3 -fpermissive -std=c++17
+OBJS = Random.o Timer.o Basics.o
+CPLOBJS = Random.o Timer.o Basics.o
 
 SYSTEM     = x86-64_linux
 LIBFORMAT  = static_pic
@@ -21,4 +21,3 @@ local_search: local_search.cpp $(OBJS)
 
 clean:
 	@rm -f *~ *.o ${TARGET} core
-

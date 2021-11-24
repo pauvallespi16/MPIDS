@@ -1,7 +1,7 @@
 /***************************************************************************
-    greedy.cpp 
+    greedy.cpp
     (C) 2021 by C. Blum & M. Blesa
-    
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "Basics.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -50,14 +51,14 @@ vector< set<int> > neighbors;
 // string for keeping the name of the input file
 string inputFile;
 
-// dummy parameters as examples for creating command line parameters 
+// dummy parameters as examples for creating command line parameters
 // see function read_parameters(...)
 int dummy_integer_parameter = 0;
 int dummy_double_parameter = 0.0;
 
 // C++ program to find the Dominant Set of a graph
 using namespace std;
-  
+
 inline int stoi(string &s) {
 
   return atoi(s.c_str());
@@ -99,17 +100,17 @@ void read_parameters(int argc, char **argv) {
         // has to represent the input file
         if (strcmp(argv[iarg],"-i")==0)
             inputFile = argv[++iarg];
-        
-        // example for creating a command line parameter param1 
+
+        // example for creating a command line parameter param1
         //-> integer value is stored in dummy_integer_parameter
         else if (strcmp(argv[iarg],"-param1")==0)
             cout << dummy_integer_parameter << endl;
-            
-        // example for creating a command line parameter param2 
+
+        // example for creating a command line parameter param2
         //-> double value is stored in dummy_double_parameter
-        else if (strcmp(argv[iarg],"-param2")==0) 
-            dummy_double_parameter = atof(argv[++iarg]);  
-            
+        else if (strcmp(argv[iarg],"-param2")==0)
+            dummy_double_parameter = atof(argv[++iarg]);
+
         iarg++;
     }
 }
@@ -182,12 +183,12 @@ int main( int argc, char **argv ) {
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(10) << std::fixed;
 
-    // initializing the random number generator. 
+    // initializing the random number generator.
     // A random number in (0,1) is obtained with: double rnum = rnd->next();
     rnd = new Random((unsigned) time(&t));
     rnd->next();
 
-    // variables for storing the result and the computation time 
+    // variables for storing the result and the computation time
     // obtained by the greedy heuristic
     double results = std::numeric_limits<int>::max();
     double time = 0.0;
@@ -208,20 +209,20 @@ int main( int argc, char **argv ) {
         neighbors[v - 1].insert(u - 1);
     }
     indata.close();
-
     // the computation time starts now
     Timer timer;
-    
-    // Example for requesting the elapsed computation time at any moment: 
+
+    // Example for requesting the elapsed computation time at any moment:
     double ct = timer.elapsed_time(Timer::VIRTUAL);
 
     // HERE GOES YOUR GREEDY HEURISTIC
-    // When finished with generating a solution, first take the computation 
+    // When finished with generating a solution, first take the computation
     // time as explained above. Say you store it in variable ct.
-    // Then write the following to the screen: 
+    // Then write the following to the screen:
+    // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
     /*
-    neighbors = vector< set<int> >(10);
+    neighbors = vector<set<int> >(8);
     neighbors[0] = {5, 7};
     neighbors[1] = {2};
     neighbors[2] = {1, 6, 8, 9};
