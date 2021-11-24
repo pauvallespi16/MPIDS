@@ -9,3 +9,5 @@ node1  node2
 nodeX  nodeY
 
 which node1-node2, ..., nodeX-nodeY represent the edges
+
+../input/instances/ego-facebook.txt

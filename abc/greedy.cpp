@@ -33,6 +33,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <cmath>
 #include <unordered_set>
 #include <limits>
 #include <iomanip>
@@ -67,20 +68,14 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
-<<<<<<< HEAD
-bool check_PIDS(vector <int> subset) {
-    set<int> sset;
-    for (int node : subset) sset.insert(node);
-=======
 bool check_PIDS(set <int> subset) {
->>>>>>> pau
     for (set <int> s : neighbors){
         int count = 0;
         for (int i : s) {
             if (subset.find(i) != subset.end())
                 count++;
         }
-        if (count < ceil(s.size()/2.f)) return false;
+        if (count < s.size()/2.f) return false;
     }  
     return true;
 }
@@ -94,26 +89,6 @@ bool check_MPIDS(set <int> subset) {
         aux.insert(s);
     }
     return true;
-}
-
-bool comparePairs (pair <int, int> p1, pair <int, int> p2){
-    if (p1.second == p2.second)
-        return p1.first < p2.first;
-    return p1.second > p2.second;
-}
-
-void pan_greedy () {
-    int n = neighbors.size();
-
-    vector <pair <int, int> > aux (n);
-    for (int i=0; i<n; i++){
-        aux[i] = pair <int, int> (i+1, neighbors[i].size());
-    }
-    sort(aux.begin(), aux.end(), comparePairs);
-
-    for (int i=0; i<n; i++) {
-
-    }
 }
 
 void read_parameters(int argc, char **argv) {
@@ -139,16 +114,73 @@ void read_parameters(int argc, char **argv) {
     }
 }
 
+// Linear time sort
+vector<int> counting_sort(vector<int> array) {
+    int max = neighbors.size()-1;
+    vector<int> output (array.size());
+    vector<int> count (max+1, 0);
+    int size = max+1;
+    // Store the count of each element
+    for (int i = 0; i < size; i++) {
+        count[array[i]]++;
+    }
+
+    // Store the cummulative count of each array
+    for (int i = 1; i <= max; i++) {
+        count[i] += count[i - 1];
+    }
+
+    // Find the index of each element of the original array in count array, and
+    // place the elements in output array
+    for (int i = size - 1; i >= 0; i--) {
+        output[count[array[i]] - 1] = i;
+        count[array[i]]--;
+    }
+
+    reverse(output.begin(), output.end());
+    return output;
+}
+
+bool check_adjacent_neighbors(const set<int>& node_neighbors, vector<int>& neighbors_popularity) {
+    for (int node : node_neighbors) {
+        if (neighbors_popularity[node] < ceil(neighbors[node].size()/2.f)) {
+            for (int node : node_neighbors)
+                neighbors_popularity[node]++;
+            return true;
+        }
+    }
+    return false;
+}
+
+set<int> greedy() {
+    set<int> solution;
+    vector<int> neighbors_popularity(neighbors.size(), 0);
+    vector<int> index_array(neighbors.size());
+
+    for (int i = 0; i < neighbors.size(); i++) index_array[i] = neighbors[i].size();
+    index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
+   
+    int top = 0; 
+    while (top < neighbors.size()) {
+        if (check_adjacent_neighbors(neighbors[index_array[top]], neighbors_popularity)) {
+            solution.insert(index_array[top]);
+        }
+        top++;
+    }
+
+    if (check_PIDS(solution)) return solution;
+    return {};
+}
+
 /************
 Main function
 *************/
-
 int main( int argc, char **argv ) {
-
-    /*read_parameters(argc,argv);
+    
+    read_parameters(argc,argv);
     
     // setting the output format for doubles to 2 decimals after the comma
-    std::cout << std::setprecision(2) << std::fixed;
+    std::cout << std::setprecision(10) << std::fixed;
 
     // initializing the random number generator. 
     // A random number in (0,1) is obtained with: double rnum = rnd->next();
@@ -176,40 +208,21 @@ int main( int argc, char **argv ) {
         neighbors[v - 1].insert(u - 1);
     }
     indata.close();
-    
-    for (auto val : neighbors) {
-        cout << "Neighbour: " << endl;
-        for (auto s : val) {
-            cout << s << endl;
-        }
-        cout << endl;
-    }
 
     // the computation time starts now
-    Timer timer;*/
-
+    Timer timer;
+    
     // Example for requesting the elapsed computation time at any moment: 
-    // double ct = timer.elapsed_time(Timer::VIRTUAL);
+    double ct = timer.elapsed_time(Timer::VIRTUAL);
 
     // HERE GOES YOUR GREEDY HEURISTIC
     // When finished with generating a solution, first take the computation 
     // time as explained above. Say you store it in variable ct.
     // Then write the following to the screen: 
-    // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
-/*
-    vector <pair <int, int>> aux = {pair<int, int>(0, 10), pair<int, int>(1, 20), pair<int, int>(2, 20), pair<int, int>(3, 2)};
-    sort(aux.begin(), aux.end(), comparePairs);
-
-    for (pair <int, int> a : aux){
-        cout << a.first << " " << a.second << endl;
-<<<<<<< HEAD
-    }
-=======
-    }*/
-
-    neighbors = vector<set<int> >(8);
-    /*neighbors[0] = {5, 7};
+    /*
+    neighbors = vector< set<int> >(10);
+    neighbors[0] = {5, 7};
     neighbors[1] = {2};
     neighbors[2] = {1, 6, 8, 9};
     neighbors[3] = {6};
@@ -218,8 +231,9 @@ int main( int argc, char **argv ) {
     neighbors[6] = {2, 3, 4};
     neighbors[7] = {0, 5};
     neighbors[8] = {2};
-    neighbors[9] = {2, 5};*/
+    neighbors[9] = {2, 5};
 
+    
     neighbors[0] = {1, 2};
     neighbors[1] = {0, 2};
     neighbors[2] = {0, 1, 3, 4};
@@ -227,14 +241,11 @@ int main( int argc, char **argv ) {
     neighbors[4] = {2, 7, 5};
     neighbors[5] = {4, 6};
     neighbors[6] = {5};
-    neighbors[7] = {4};
+    neighbors[7] = {4};*/
 
-
-  
-
-    vector<int> subcjt = {2, 3, 4, 5};
-    set<int> uset;
-    for (int i : subcjt) uset.insert(i);
-    cout << (check_MPIDS(uset) ? "yes" : "no") << endl; 
->>>>>>> pau
+    set<int> sol_set = greedy();
+    if (check_PIDS(sol_set)) {
+        cout << "TIME:" << ct << endl;
+        cout << "NODES:" << sol_set.size() << endl;
+    }
 }
