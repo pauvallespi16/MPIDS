@@ -33,6 +33,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <cmath>
 #include <unordered_set>
 #include <limits>
 #include <iomanip>
@@ -90,26 +91,6 @@ bool check_MPIDS(set <int> subset) {
     return true;
 }
 
-bool comparePairs (pair <int, int> p1, pair <int, int> p2){
-    if (p1.second == p2.second)
-        return p1.first < p2.first;
-    return p1.second > p2.second;
-}
-
-void pan_greedy () {
-    int n = neighbors.size();
-
-    vector <pair <int, int> > aux (n);
-    for (int i=0; i<n; i++){
-        aux[i] = pair <int, int> (i+1, neighbors[i].size());
-    }
-    sort(aux.begin(), aux.end(), comparePairs);
-
-    for (int i=0; i<n; i++) {
-
-    }
-}
-
 void read_parameters(int argc, char **argv) {
     int iarg = 1;
 
@@ -133,12 +114,56 @@ void read_parameters(int argc, char **argv) {
     }
 }
 
+/*
+void countSort(vector<int> array) {
+    int max = neighbors.size()-1;
+    vector<int> output (array.size());
+    vector<int> count (max+1, 0);
+    int size = max+1;
+    // Store the count of each element
+    for (int i = 0; i < size; i++) {
+        count[array[i]]++;
+    }
+
+    // Store the cummulative count of each array
+    for (int i = 1; i <= max; i++) {
+        count[i] += count[i - 1];
+    }
+
+    // Find the index of each element of the original array in count array, and
+    // place the elements in output array
+    for (int i = size - 1; i >= 0; i--) {
+        output[count[array[i]] - 1] = array[i];
+        count[array[i]]--;
+    }
+
+    reverse(output.begin(), output.end());
+    for (int n : output) cout << n << endl;
+}*/
+
+bool compare(set<int> s1, set<int> s2) {
+    return s1.size() > s2.size();
+}
+
+set<int> bercow_greedy() {
+    set<int> solution; 
+    /*vector<int> arr(neighbors.size());
+    for (int i = 0; i < neighbors.size(); i++) arr[i] = neighbors[i].size();
+    countSort(arr);*/
+
+    sort(neighbors.begin(), neighbors.end(), compare);
+   
+    /*while (!check_MPIDS(solution)) {
+
+    }*/
+    return solution;
+}
+
 /************
 Main function
 *************/
-
 int main( int argc, char **argv ) {
-
+    vector<int> nodesInSubset(10, 0);
     /*read_parameters(argc,argv);
     
     // setting the output format for doubles to 2 decimals after the comma
@@ -191,16 +216,8 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen: 
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
-/*
-    vector <pair <int, int>> aux = {pair<int, int>(0, 10), pair<int, int>(1, 20), pair<int, int>(2, 20), pair<int, int>(3, 2)};
-    sort(aux.begin(), aux.end(), comparePairs);
-
-    for (pair <int, int> a : aux){
-        cout << a.first << " " << a.second << endl;
-    }*/
-
-    neighbors = vector<set<int> >(8);
-    /*neighbors[0] = {5, 7};
+    neighbors = vector< set<int> >(10);
+    neighbors[0] = {5, 7};
     neighbors[1] = {2};
     neighbors[2] = {1, 6, 8, 9};
     neighbors[3] = {6};
@@ -209,8 +226,9 @@ int main( int argc, char **argv ) {
     neighbors[6] = {2, 3, 4};
     neighbors[7] = {0, 5};
     neighbors[8] = {2};
-    neighbors[9] = {2, 5};*/
+    neighbors[9] = {2, 5};
 
+    /*
     neighbors[0] = {1, 2};
     neighbors[1] = {0, 2};
     neighbors[2] = {0, 1, 3, 4};
@@ -219,12 +237,16 @@ int main( int argc, char **argv ) {
     neighbors[5] = {4, 6};
     neighbors[6] = {5};
     neighbors[7] = {4};
+    */
 
-
-  
 
     vector<int> subcjt = {2, 3, 4, 5};
     set<int> uset;
     for (int i : subcjt) uset.insert(i);
+
+    bercow_greedy();
+
+
+
     cout << (check_MPIDS(uset) ? "yes" : "no") << endl; 
 }
