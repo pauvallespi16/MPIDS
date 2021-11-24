@@ -71,7 +71,7 @@ bool check_PIDS(vector <int> subset) {
             for (int j : subset)
                 if (i == j) {count++; break;}
             
-            if (count < s.size()) return true;
+            if (count < s.size()/2) return true;
         }
     }  
 }
