@@ -148,10 +148,6 @@ void read_parameters(int argc, char **argv) {
     }
 }
 
-bool check_MPIDS() {
-
-}
-
 /************
 Main function
 *************/
@@ -217,12 +213,4 @@ int main( int argc, char **argv ) {
     for (pair <int, int> a : aux){
         cout << a.first << " " << a.second << endl;
     }
-}
-
-bool check_MPIDS(vector <set <int> > subset) {
-    for (int i = 0; i < subset.size(); i++) {
-        if (subset[i].size() < neighbors[i].size()/2) 
-            return false;
-    }
-    return true;
 }
