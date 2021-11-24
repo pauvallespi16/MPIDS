@@ -1,7 +1,7 @@
 /***************************************************************************
     local_search.cpp
     (C) 2021 by C.Blum & M.Blesa
-    
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "Basics.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -33,12 +34,14 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <limits>
 #include <iomanip>
 
 // global variables concerning the random number generator (in case needed)
 time_t t;
 Random* rnd;
+Basics b;
 
 // Data structures for the problem data
 int n_of_nodes;
@@ -51,7 +54,7 @@ string inputFile;
 // number of applications of local search
 int n_apps = 1;
 
-// dummy parameters as examples for creating command line parameters -> 
+// dummy parameters as examples for creating command line parameters ->
 // see function read_parameters(...)
 int dummy_integer_parameter = 0;
 int dummy_double_parameter = 0.0;
@@ -67,26 +70,76 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
+unordered_set <int> initialSolution () {
+  unordered_set <int> s;
+  for (int i = 0; i < neighbors.size(); i++) s.insert(i);
+  return s;
+}
+
+bool addNodeToSolution (unordered_set<int>& s, int n) {
+  if (s.find(n) == s.end() && b.check_PIDS(s)) { s.insert(n); return true; }
+  return false;
+}
+
+bool removeAddToSolution (unordered_set<int>& s, int n) {
+  if (s.find(n) != s.end() && b.check_PIDS(s)) { s.erase(n); return true; }
+  return false;
+}
+
+void findNeighbors (unordered_set <int> s, vector <unordered_set<int>>& n){
+  unordered_set <int> x;
+  for (int i = 0; i < neighbors.size(); i++){
+    x = s;
+    if (addNodeToSolution (x, i)) n.push_back(x);
+
+    x = s;
+    if (removeAddToSolution (x, i)) n.push_back(x);
+  }
+}
+
+int calcHeuristics (unordered_set <int>& s){
+  return s.size();
+}
+
+void hillClimbing (unordered_set <int>& s){
+  bool foundMin = true;
+  while (foundMin){
+    foundMin = false;
+
+    int curHeur = calcHeuristics (s);
+    vector <unordered_set<int>> n;
+
+    findNeighbors(s, n);
+    for (unordered_set<int> v : n){
+      int next = calcHeuristics(v);
+      if (curHeur > next){
+        foundMin = true;
+        s = v; curHeur = next;
+      }
+    }
+  }
+}
+
 void read_parameters(int argc, char **argv) {
 
     int iarg = 1;
 
     while (iarg < argc) {
         if (strcmp(argv[iarg],"-i")==0) inputFile = argv[++iarg];
-        
-        // reading the number of applications of local search 
+
+        // reading the number of applications of local search
         // from the command line (if provided)
-        else if (strcmp(argv[iarg],"-n_apps")==0) n_apps = atoi(argv[++iarg]); 
-        
-        // example for creating a command line parameter param1 -> 
+        else if (strcmp(argv[iarg],"-n_apps")==0) n_apps = atoi(argv[++iarg]);
+
+        // example for creating a command line parameter param1 ->
         // integer value is stored in dummy_integer_parameter
         else if (strcmp(argv[iarg],"-param1")==0) {
-            dummy_integer_parameter = atoi(argv[++iarg]); 
+            dummy_integer_parameter = atoi(argv[++iarg]);
         }
-        // example for creating a command line parameter param2 -> 
+        // example for creating a command line parameter param2 ->
         // double value is stored in dummy_double_parameter
         else if (strcmp(argv[iarg],"-param2")==0) {
-            dummy_double_parameter = atof(argv[++iarg]);  
+            dummy_double_parameter = atof(argv[++iarg]);
         }
         iarg++;
     }
@@ -100,16 +153,16 @@ Main function
 int main( int argc, char **argv ) {
 
     read_parameters(argc,argv);
-    
+
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(2) << std::fixed;
 
-    // initializing the random number generator. 
+    // initializing the random number generator.
     // A random number in (0,1) is obtained with: double rnum = rnd->next();
     rnd = new Random((unsigned) time(&t));
     rnd->next();
 
-    // vectors for storing the result and the computation time 
+    // vectors for storing the result and the computation time
     // obtained by the <n_apps> applications of local search
     vector<double> results(n_apps, std::numeric_limits<int>::max());
     vector<double> times(n_apps, 0.0);
@@ -137,35 +190,37 @@ int main( int argc, char **argv ) {
         // the computation time starts now
         Timer timer;
 
-        // Example for requesting the elapsed computation time at any moment: 
+        // Example for requesting the elapsed computation time at any moment:
         // double ct = timer.elapsed_time(Timer::VIRTUAL);
 
         cout << "start application " << na + 1 << endl;
 
         // HERE GOES YOUR LOCAL SEARCH METHOD
+        unordered_set <int> sAux = initialSolution();
+        hillClimbing(sAux);
 
-        // The starting solution for local search may be randomly generated, 
-        // or you may incorporate your greedy heuristic in order to produce 
+        // The starting solution for local search may be randomly generated,
+        // or you may incorporate your greedy heuristic in order to produce
         // the starting solution.
-        
-        // Whenever you move to a new solution, first take the computation 
+
+        // Whenever you move to a new solution, first take the computation
         // time as explained above. Say you store it in variable ct.
-        // Then, write the following to the screen: 
+        // Then, write the following to the screen:
         // cout << "value " << <value of the current solution>;
         // cout << "\ttime " << ct << endl;
 
-        // When a local minimum is reached, store the value of the 
-        // corresponding solution in vector results: 
+        // When a local minimum is reached, store the value of the
+        // corresponding solution in vector results:
         // results[na] = <value of the local minimum>;
-        
-        // Finally store the needed computation time (that is, the time 
-        // measured once the local minimum is reached) in vector times: 
+
+        // Finally store the needed computation time (that is, the time
+        // measured once the local minimum is reached) in vector times:
         // times[na] = ct;
 
         cout << "end application " << na + 1 << endl;
     }
 
-    // calculating the average of the results and computation times, and 
+    // calculating the average of the results and computation times, and
     // their standard deviations, and write them to the screen
     double r_mean = 0.0;
     int r_best = std::numeric_limits<int>::max();
@@ -194,4 +249,3 @@ int main( int argc, char **argv ) {
     cout << r_best << "\t" << r_mean << "\t" << rsd << "\t";
     cout << t_mean << "\t" << tsd << endl;
 }
-
