@@ -54,7 +54,6 @@ int dummy_integer_parameter = 0;
 int dummy_double_parameter = 0.0;
 
 // C++ program to find the Dominant Set of a graph
-#include <bits/stdc++.h>
 using namespace std;
   
 inline int stoi(string &s) {
@@ -68,7 +67,7 @@ inline double stof(string &s) {
 }
 
 bool check_PIDS(vector <int> subset) {
-    set<int> sset (subset.size());
+    set<int> sset;
     for (int node : subset) sset.insert(node);
     for (set <int> s : neighbors){
         int count = 0;
@@ -117,7 +116,7 @@ void pan_greedy () {
 
     vector <pair <int, int> > aux (n);
     for (int i=0; i<n; i++){
-        aux[i] = pair <int, int> (i, neighbors[i].size());
+        aux[i] = pair <int, int> (i+1, neighbors[i].size());
     }
     sort(aux.begin(), aux.end(), comparePairs);
 
