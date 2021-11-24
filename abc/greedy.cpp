@@ -71,11 +71,11 @@ bool check_PIDS(vector <int> subset) {
             for (int j : subset)
                 if (i == j) {count++; break;}
             
-            if (count < s.size()/2) return true;
+            if (count < s.size()/2) return false;
         }
     }  
+    return true;
 }
-
 
 /*
 if there is one iteration (i) with false, we know it's not dominant so break
@@ -100,6 +100,20 @@ bool check_MPIDS(vector <int> subset) {
         if (!found) return false;
    }
    return true;
+}
+
+bool comparePairs (pair <int, int> p1, pair <int, int> p2){
+    if (p1.second == p2.second)
+        return p1.first < p2.first;
+    return p1.second < p2.second;
+}
+
+void pan_greedy () {
+    vector <pair <int, int> > aux;
+    for (int i=0; i<neighbors.size(); i++){
+        aux[i] = pair <int, int> (i, neighbors[i].size());
+    }
+    sort(aux.begin(), aux.end(), comparePairs);
 }
 
 void read_parameters(int argc, char **argv) {
@@ -132,7 +146,7 @@ Main function
 
 int main( int argc, char **argv ) {
 
-    read_parameters(argc,argv);
+    /*read_parameters(argc,argv);
     
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(2) << std::fixed;
@@ -173,7 +187,7 @@ int main( int argc, char **argv ) {
     }
 
     // the computation time starts now
-    Timer timer;
+    Timer timer;*/
 
     // Example for requesting the elapsed computation time at any moment: 
     // double ct = timer.elapsed_time(Timer::VIRTUAL);
@@ -184,5 +198,12 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen: 
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
+
+    vector <pair <int, int>> aux = {pair<int, int>(0, 10), pair<int, int>(1, 20), pair<int, int>(2, 20), pair<int, int>(3, 2)};
+    sort(aux.begin(), aux.end(), comparePairs);
+
+    for (pair <int, int> a : aux){
+        cout << a.first << " " << a.second << endl;
+    }
 }
 
