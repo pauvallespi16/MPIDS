@@ -33,6 +33,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <limits>
 #include <iomanip>
 
@@ -66,43 +67,33 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
+<<<<<<< HEAD
 bool check_PIDS(vector <int> subset) {
     set<int> sset;
     for (int node : subset) sset.insert(node);
+=======
+bool check_PIDS(set <int> subset) {
+>>>>>>> pau
     for (set <int> s : neighbors){
         int count = 0;
         for (int i : s) {
-            if (sset.find(i) != sset.end())
-                count++; break;
-            if (count < s.size()/2) return false;
+            if (subset.find(i) != subset.end())
+                count++;
         }
+        if (count < ceil(s.size()/2.f)) return false;
     }  
     return true;
 }
 
-/*
-if there is one iteration (i) with false, we know it's not dominant so break
-*/
-bool check_MPIDS(vector <int> subset) {
-   for (int s : subset) {
-       bool found = false;
-       for (int i=0; i<neighbors.size(); i++){
-           bool foundIn = false;
-
-           // find out if the node is connected to any vertex from the subset
-           for (int j : subset) {
-               if (j != s && i == j) {found = true; break;}
-               if (j != s && neighbors[i].find(j) != neighbors[i].end()) {found = true; break;} 
-           }
-           
-           // if the vertex is not found, then we have found no cases in which the node isn't connected
-           if (!foundIn) {found = true; break;}
-       }
-
-        // signifies that no node is missing a connection when removing the node, graph is still dominant
-        if (!found) return false;
-   }
-   return true;
+bool check_MPIDS(set <int> subset) {
+    if (!check_PIDS(subset)) return false;
+    set<int> aux = subset;
+    for (int s : subset) {
+        aux.erase(s);
+        if (check_PIDS(aux)) return false;
+        aux.insert(s);
+    }
+    return true;
 }
 
 bool comparePairs (pair <int, int> p1, pair <int, int> p2){
@@ -206,11 +197,44 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen: 
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
-
+/*
     vector <pair <int, int>> aux = {pair<int, int>(0, 10), pair<int, int>(1, 20), pair<int, int>(2, 20), pair<int, int>(3, 2)};
     sort(aux.begin(), aux.end(), comparePairs);
 
     for (pair <int, int> a : aux){
         cout << a.first << " " << a.second << endl;
+<<<<<<< HEAD
     }
+=======
+    }*/
+
+    neighbors = vector<set<int> >(8);
+    /*neighbors[0] = {5, 7};
+    neighbors[1] = {2};
+    neighbors[2] = {1, 6, 8, 9};
+    neighbors[3] = {6};
+    neighbors[4] = {6};
+    neighbors[5] = {0, 7, 9};
+    neighbors[6] = {2, 3, 4};
+    neighbors[7] = {0, 5};
+    neighbors[8] = {2};
+    neighbors[9] = {2, 5};*/
+
+    neighbors[0] = {1, 2};
+    neighbors[1] = {0, 2};
+    neighbors[2] = {0, 1, 3, 4};
+    neighbors[3] = {2};
+    neighbors[4] = {2, 7, 5};
+    neighbors[5] = {4, 6};
+    neighbors[6] = {5};
+    neighbors[7] = {4};
+
+
+  
+
+    vector<int> subcjt = {2, 3, 4, 5};
+    set<int> uset;
+    for (int i : subcjt) uset.insert(i);
+    cout << (check_MPIDS(uset) ? "yes" : "no") << endl; 
+>>>>>>> pau
 }
