@@ -108,15 +108,21 @@ bool check_MPIDS(vector <int> subset) {
 bool comparePairs (pair <int, int> p1, pair <int, int> p2){
     if (p1.second == p2.second)
         return p1.first < p2.first;
-    return p1.second < p2.second;
+    return p1.second > p2.second;
 }
 
 void pan_greedy () {
-    vector <pair <int, int> > aux;
-    for (int i=0; i<neighbors.size(); i++){
+    int n = neighbors.size();
+
+    vector <pair <int, int> > aux (n);
+    for (int i=0; i<n; i++){
         aux[i] = pair <int, int> (i, neighbors[i].size());
     }
     sort(aux.begin(), aux.end(), comparePairs);
+
+    for (int i=0; i<n; i++) {
+
+    }
 }
 
 void read_parameters(int argc, char **argv) {
