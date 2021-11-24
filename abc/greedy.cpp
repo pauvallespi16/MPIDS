@@ -68,12 +68,13 @@ inline double stof(string &s) {
 }
 
 bool check_PIDS(vector <int> subset) {
+    set<int> sset (subset.size());
+    for (int node : subset) sset.insert(node);
     for (set <int> s : neighbors){
         int count = 0;
-        for (int i : s){
-            for (int j : subset)
-                if (i == j) {count++; break;}
-            
+        for (int i : s) {
+            if (sset.find(i) != sset.end())
+                count++; break;
             if (count < s.size()/2) return false;
         }
     }  
