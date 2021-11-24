@@ -1,7 +1,7 @@
 /***************************************************************************
-    greedy.cpp 
+    greedy.cpp
     (C) 2021 by C. Blum & M. Blesa
-    
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "Basics.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -49,14 +50,14 @@ vector< set<int> > neighbors;
 // string for keeping the name of the input file
 string inputFile;
 
-// dummy parameters as examples for creating command line parameters 
+// dummy parameters as examples for creating command line parameters
 // see function read_parameters(...)
 int dummy_integer_parameter = 0;
 int dummy_double_parameter = 0.0;
 
 // C++ program to find the Dominant Set of a graph
 using namespace std;
-  
+
 inline int stoi(string &s) {
 
   return atoi(s.c_str());
@@ -67,55 +68,6 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
-<<<<<<< HEAD
-bool check_PIDS(vector <int> subset) {
-    set<int> sset;
-    for (int node : subset) sset.insert(node);
-=======
-bool check_PIDS(set <int> subset) {
->>>>>>> pau
-    for (set <int> s : neighbors){
-        int count = 0;
-        for (int i : s) {
-            if (subset.find(i) != subset.end())
-                count++;
-        }
-        if (count < ceil(s.size()/2.f)) return false;
-    }  
-    return true;
-}
-
-bool check_MPIDS(set <int> subset) {
-    if (!check_PIDS(subset)) return false;
-    set<int> aux = subset;
-    for (int s : subset) {
-        aux.erase(s);
-        if (check_PIDS(aux)) return false;
-        aux.insert(s);
-    }
-    return true;
-}
-
-bool comparePairs (pair <int, int> p1, pair <int, int> p2){
-    if (p1.second == p2.second)
-        return p1.first < p2.first;
-    return p1.second > p2.second;
-}
-
-void pan_greedy () {
-    int n = neighbors.size();
-
-    vector <pair <int, int> > aux (n);
-    for (int i=0; i<n; i++){
-        aux[i] = pair <int, int> (i+1, neighbors[i].size());
-    }
-    sort(aux.begin(), aux.end(), comparePairs);
-
-    for (int i=0; i<n; i++) {
-
-    }
-}
-
 void read_parameters(int argc, char **argv) {
     int iarg = 1;
 
@@ -124,17 +76,17 @@ void read_parameters(int argc, char **argv) {
         // has to represent the input file
         if (strcmp(argv[iarg],"-i")==0)
             inputFile = argv[++iarg];
-        
-        // example for creating a command line parameter param1 
+
+        // example for creating a command line parameter param1
         //-> integer value is stored in dummy_integer_parameter
         else if (strcmp(argv[iarg],"-param1")==0)
             cout << dummy_integer_parameter << endl;
-            
-        // example for creating a command line parameter param2 
+
+        // example for creating a command line parameter param2
         //-> double value is stored in dummy_double_parameter
-        else if (strcmp(argv[iarg],"-param2")==0) 
-            dummy_double_parameter = atof(argv[++iarg]);  
-            
+        else if (strcmp(argv[iarg],"-param2")==0)
+            dummy_double_parameter = atof(argv[++iarg]);
+
         iarg++;
     }
 }
@@ -146,16 +98,16 @@ Main function
 int main( int argc, char **argv ) {
 
     /*read_parameters(argc,argv);
-    
+
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(2) << std::fixed;
 
-    // initializing the random number generator. 
+    // initializing the random number generator.
     // A random number in (0,1) is obtained with: double rnum = rnd->next();
     rnd = new Random((unsigned) time(&t));
     rnd->next();
 
-    // variables for storing the result and the computation time 
+    // variables for storing the result and the computation time
     // obtained by the greedy heuristic
     double results = std::numeric_limits<int>::max();
     double time = 0.0;
@@ -176,7 +128,7 @@ int main( int argc, char **argv ) {
         neighbors[v - 1].insert(u - 1);
     }
     indata.close();
-    
+
     for (auto val : neighbors) {
         cout << "Neighbour: " << endl;
         for (auto s : val) {
@@ -188,25 +140,14 @@ int main( int argc, char **argv ) {
     // the computation time starts now
     Timer timer;*/
 
-    // Example for requesting the elapsed computation time at any moment: 
+    // Example for requesting the elapsed computation time at any moment:
     // double ct = timer.elapsed_time(Timer::VIRTUAL);
 
     // HERE GOES YOUR GREEDY HEURISTIC
-    // When finished with generating a solution, first take the computation 
+    // When finished with generating a solution, first take the computation
     // time as explained above. Say you store it in variable ct.
-    // Then write the following to the screen: 
+    // Then write the following to the screen:
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
-
-/*
-    vector <pair <int, int>> aux = {pair<int, int>(0, 10), pair<int, int>(1, 20), pair<int, int>(2, 20), pair<int, int>(3, 2)};
-    sort(aux.begin(), aux.end(), comparePairs);
-
-    for (pair <int, int> a : aux){
-        cout << a.first << " " << a.second << endl;
-<<<<<<< HEAD
-    }
-=======
-    }*/
 
     neighbors = vector<set<int> >(8);
     /*neighbors[0] = {5, 7};
@@ -230,11 +171,10 @@ int main( int argc, char **argv ) {
     neighbors[7] = {4};
 
 
-  
+    Basics b;
 
     vector<int> subcjt = {2, 3, 4, 5};
-    set<int> uset;
+    unordered_set<int> uset;
     for (int i : subcjt) uset.insert(i);
-    cout << (check_MPIDS(uset) ? "yes" : "no") << endl; 
->>>>>>> pau
+    cout << (b.check_MPIDS(uset) ? "yes" : "no") << endl;
 }
