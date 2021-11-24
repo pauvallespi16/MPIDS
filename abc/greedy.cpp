@@ -101,7 +101,7 @@ void pan_greedy () {
 
     vector <pair <int, int> > aux (n);
     for (int i=0; i<n; i++){
-        aux[i] = pair <int, int> (i, neighbors[i].size());
+        aux[i] = pair <int, int> (i+1, neighbors[i].size());
     }
     sort(aux.begin(), aux.end(), comparePairs);
 
