@@ -45,7 +45,8 @@ Random* rnd;
 // Data structures for the problem data
 int n_of_nodes;
 int n_of_arcs;
-vector< set<int> > neighbors;
+vector< unordered_set<int> > neighbors;
+vector<int> neighbors_popularity;
 
 // string for keeping the name of the input file
 string inputFile;
@@ -92,7 +93,7 @@ void read_parameters(int argc, char **argv) {
 }
 
 bool check_PIDS(unordered_set <int> subset) {
-    for (set <int> s : neighbors){
+    for (auto s : neighbors){
         int count = 0;
         for (int i : s) {
             if (subset.find(i) != subset.end())
@@ -105,6 +106,7 @@ bool check_PIDS(unordered_set <int> subset) {
 
 bool check_MPIDS(unordered_set <int> subset) {
     if (!check_PIDS(subset)) return false;
+    
     unordered_set<int> aux = subset;
     for (int s : subset) {
         aux.erase(s);
@@ -114,6 +116,31 @@ bool check_MPIDS(unordered_set <int> subset) {
     return true;
 }
 
+bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
+    for (int node : node_neighbors) {
+        if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
+            for (int node : node_neighbors)
+                neighbors_popularity[node]++;
+            return true;
+        }
+    }
+    return false;
+}
+
+int find_removable_node(unordered_set <int> subset) {
+    unordered_set<int> aux = subset;
+    for (int s : subset) {
+        aux.erase(s);
+        for (int n : neighbors[s]) {
+            neighbors_popularity[n]--;
+        }
+
+        if (!check_adjacent_neighbors(neighbors[s])) return s;
+        aux.insert(s);
+    }
+    return -1;
+}
+/*
 // Linear time sort
 vector<int> counting_sort(vector<int> array) {
     int max = neighbors.size()-1;
@@ -141,27 +168,25 @@ vector<int> counting_sort(vector<int> array) {
     return output;
 }
 
-bool check_adjacent_neighbors(const set<int>& node_neighbors, vector<int>& neighbors_popularity) {
-    for (int node : node_neighbors) {
-        if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
-            for (int node : node_neighbors)
-                neighbors_popularity[node]++;
-            return true;
-        }
-    }
-    return false;
+*/
+
+bool compare(int i, int j) {
+    return neighbors[i].size() > neighbors[j].size();
 }
 
 unordered_set<int> greedy() {
     unordered_set<int> solution;
-    vector<int> neighbors_popularity(neighbors.size(), 0);
+    neighbors_popularity = vector<int>(neighbors.size(), 0);
     vector<int> index_array(neighbors.size());
 
-    for (int i = 0; i < neighbors.size(); i++) index_array[i] = neighbors[i].size();
-    index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
-   
+    for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
+    sort (index_array.begin(), index_array.end(), compare);
+
+    // if counting works: 
+    // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
+    
     for (int top = 0; top < neighbors.size(); top++) {
-        if (check_adjacent_neighbors(neighbors[index_array[top]], neighbors_popularity)) {
+        if (check_adjacent_neighbors(neighbors[index_array[top]])) {
             solution.insert(index_array[top]);
         }
     }
@@ -174,7 +199,6 @@ unordered_set<int> greedy() {
 Main function
 *************/
 int main( int argc, char **argv ) {
-    
     read_parameters(argc,argv);
     
     // setting the output format for doubles to 2 decimals after the comma
@@ -199,7 +223,7 @@ int main( int argc, char **argv ) {
 
     indata >> n_of_nodes;
     indata >> n_of_arcs;
-    neighbors = vector< set<int> >(n_of_nodes);
+    neighbors = vector< unordered_set<int> >(n_of_nodes);
     int u, v;
     while(indata >> u >> v) {
         neighbors[u - 1].insert(v - 1);
@@ -210,7 +234,6 @@ int main( int argc, char **argv ) {
     Timer timer;
 
     // Example for requesting the elapsed computation time at any moment:
-    double ct = timer.elapsed_time(Timer::VIRTUAL);
 
     // HERE GOES YOUR GREEDY HEURISTIC
     // When finished with generating a solution, first take the computation
@@ -218,8 +241,8 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen:
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
-    /*
-    neighbors = vector<set<int> >(8);
+    /*    
+    neighbors = vector<unordered_set<int> >(10);
     neighbors[0] = {5, 7};
     neighbors[1] = {2};
     neighbors[2] = {1, 6, 8, 9};
@@ -230,7 +253,7 @@ int main( int argc, char **argv ) {
     neighbors[7] = {0, 5};
     neighbors[8] = {2};
     neighbors[9] = {2, 5};
-
+    
     
     neighbors[0] = {1, 2};
     neighbors[1] = {0, 2};
@@ -243,7 +266,16 @@ int main( int argc, char **argv ) {
 
     unordered_set<int> sol_set = greedy();
     if (check_PIDS(sol_set)) {
+        int node = find_removable_node(sol_set);
+        while (node != -1) {
+            sol_set.erase(node);
+            node = find_removable_node(sol_set);
+        }
+        double ct = timer.elapsed_time(Timer::VIRTUAL);
         cout << "TIME:" << ct << endl;
-        cout << "NODES:" << sol_set.size() << endl;
+
+        if (check_PIDS(sol_set)) cout << "NODES:" << sol_set.size() << endl;
+        if (check_MPIDS(sol_set)) cout << "MINIMAL" << endl;
+        else cout << "NOT MINIMAL" << endl;
     }
 }
