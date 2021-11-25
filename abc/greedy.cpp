@@ -143,7 +143,7 @@ vector<int> counting_sort(vector<int> array) {
 
 bool check_adjacent_neighbors(const set<int>& node_neighbors, vector<int>& neighbors_popularity) {
     for (int node : node_neighbors) {
-        if (neighbors_popularity[node] < ceil(neighbors[node].size()/2.f)) {
+        if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
             for (int node : node_neighbors)
                 neighbors_popularity[node]++;
             return true;
@@ -160,12 +160,10 @@ unordered_set<int> greedy() {
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = neighbors[i].size();
     index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
    
-    int top = 0; 
-    while (top < neighbors.size()) {
+    for (int top = 0; top < neighbors.size(); top++) {
         if (check_adjacent_neighbors(neighbors[index_array[top]], neighbors_popularity)) {
             solution.insert(index_array[top]);
         }
-        top++;
     }
 
     if (check_PIDS(solution)) return solution;
