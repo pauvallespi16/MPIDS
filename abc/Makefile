@@ -1,7 +1,7 @@
 TARGET = greedy local_search
 CXXFLAGS = -ansi -O3 -fpermissive -std=c++17
-OBJS = Random.o Timer.o Basics.o
-CPLOBJS = Random.o Timer.o Basics.o
+OBJS = Random.o Timer.o
+CPLOBJS = Random.o Timer.o
 
 SYSTEM     = x86-64_linux
 LIBFORMAT  = static_pic

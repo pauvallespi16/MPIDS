@@ -19,7 +19,6 @@
 
 #include "Timer.h"
 #include "Random.h"
-#include "Basics.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -34,6 +33,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <cmath>
 #include <unordered_set>
 #include <limits>
 #include <iomanip>
@@ -91,16 +91,96 @@ void read_parameters(int argc, char **argv) {
     }
 }
 
+bool check_PIDS(unordered_set <int> subset) {
+    for (set <int> s : neighbors){
+        int count = 0;
+        for (int i : s) {
+            if (subset.find(i) != subset.end())
+                count++;
+        }
+        if (count < s.size()/2.f) return false;
+    }
+    return true;
+}
+
+bool check_MPIDS(unordered_set <int> subset) {
+    if (!check_PIDS(subset)) return false;
+    unordered_set<int> aux = subset;
+    for (int s : subset) {
+        aux.erase(s);
+        if (check_PIDS(aux)) return false;
+        aux.insert(s);
+    }
+    return true;
+}
+
+// Linear time sort
+vector<int> counting_sort(vector<int> array) {
+    int max = neighbors.size()-1;
+    vector<int> output (array.size());
+    vector<int> count (max+1, 0);
+    int size = max+1;
+    // Store the count of each element
+    for (int i = 0; i < size; i++) {
+        count[array[i]]++;
+    }
+
+    // Store the cummulative count of each array
+    for (int i = 1; i <= max; i++) {
+        count[i] += count[i - 1];
+    }
+
+    // Find the index of each element of the original array in count array, and
+    // place the elements in output array
+    for (int i = size - 1; i >= 0; i--) {
+        output[count[array[i]] - 1] = i;
+        count[array[i]]--;
+    }
+
+    reverse(output.begin(), output.end());
+    return output;
+}
+
+bool check_adjacent_neighbors(const set<int>& node_neighbors, vector<int>& neighbors_popularity) {
+    for (int node : node_neighbors) {
+        if (neighbors_popularity[node] < ceil(neighbors[node].size()/2.f)) {
+            for (int node : node_neighbors)
+                neighbors_popularity[node]++;
+            return true;
+        }
+    }
+    return false;
+}
+
+unordered_set<int> greedy() {
+    unordered_set<int> solution;
+    vector<int> neighbors_popularity(neighbors.size(), 0);
+    vector<int> index_array(neighbors.size());
+
+    for (int i = 0; i < neighbors.size(); i++) index_array[i] = neighbors[i].size();
+    index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
+   
+    int top = 0; 
+    while (top < neighbors.size()) {
+        if (check_adjacent_neighbors(neighbors[index_array[top]], neighbors_popularity)) {
+            solution.insert(index_array[top]);
+        }
+        top++;
+    }
+
+    if (check_PIDS(solution)) return solution;
+    return {};
+}
+
 /************
 Main function
 *************/
-
 int main( int argc, char **argv ) {
-
-    /*read_parameters(argc,argv);
-
+    
+    read_parameters(argc,argv);
+    
     // setting the output format for doubles to 2 decimals after the comma
-    std::cout << std::setprecision(2) << std::fixed;
+    std::cout << std::setprecision(10) << std::fixed;
 
     // initializing the random number generator.
     // A random number in (0,1) is obtained with: double rnum = rnd->next();
@@ -128,20 +208,11 @@ int main( int argc, char **argv ) {
         neighbors[v - 1].insert(u - 1);
     }
     indata.close();
-
-    for (auto val : neighbors) {
-        cout << "Neighbour: " << endl;
-        for (auto s : val) {
-            cout << s << endl;
-        }
-        cout << endl;
-    }
-
     // the computation time starts now
-    Timer timer;*/
+    Timer timer;
 
     // Example for requesting the elapsed computation time at any moment:
-    // double ct = timer.elapsed_time(Timer::VIRTUAL);
+    double ct = timer.elapsed_time(Timer::VIRTUAL);
 
     // HERE GOES YOUR GREEDY HEURISTIC
     // When finished with generating a solution, first take the computation
@@ -149,8 +220,9 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen:
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
+    /*
     neighbors = vector<set<int> >(8);
-    /*neighbors[0] = {5, 7};
+    neighbors[0] = {5, 7};
     neighbors[1] = {2};
     neighbors[2] = {1, 6, 8, 9};
     neighbors[3] = {6};
@@ -159,8 +231,9 @@ int main( int argc, char **argv ) {
     neighbors[6] = {2, 3, 4};
     neighbors[7] = {0, 5};
     neighbors[8] = {2};
-    neighbors[9] = {2, 5};*/
+    neighbors[9] = {2, 5};
 
+    
     neighbors[0] = {1, 2};
     neighbors[1] = {0, 2};
     neighbors[2] = {0, 1, 3, 4};
@@ -168,13 +241,11 @@ int main( int argc, char **argv ) {
     neighbors[4] = {2, 7, 5};
     neighbors[5] = {4, 6};
     neighbors[6] = {5};
-    neighbors[7] = {4};
+    neighbors[7] = {4};*/
 
-
-    Basics b;
-
-    vector<int> subcjt = {2, 3, 4, 5};
-    unordered_set<int> uset;
-    for (int i : subcjt) uset.insert(i);
-    cout << (b.check_MPIDS(uset) ? "yes" : "no") << endl;
+    unordered_set<int> sol_set = greedy();
+    if (check_PIDS(sol_set)) {
+        cout << "TIME:" << ct << endl;
+        cout << "NODES:" << sol_set.size() << endl;
+    }
 }

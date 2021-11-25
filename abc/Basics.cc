@@ -11,7 +11,7 @@ bool Basics::check_PIDS(unordered_set <int> subset) {
             if (subset.find(i) != subset.end())
                 count++;
         }
-        if (count < ceil(s.size()/2.f)) return false;
+        if (count < s.size()/2.f) return false;
     }
     return true;
 }
@@ -27,6 +27,6 @@ bool Basics::check_MPIDS(unordered_set <int> subset) {
     return true;
 }
 
-void Basics::setNeihbors (vector <set <int> > n) {
+void Basics::setNeighbors (vector <set <int> > n) {
   neighbors = n;
 }
