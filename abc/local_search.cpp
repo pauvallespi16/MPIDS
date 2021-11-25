@@ -70,9 +70,21 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
-unordered_set <int> initialSolution () {
+unordered_set<int> fromArray (vector <int> x){
   unordered_set <int> s;
-  for (int i = 0; i < neighbors.size(); i++) s.insert(i);
+  for (int i : x) s.insert(i);
+  return s;
+}
+
+unordered_set <int> initialSolution () {
+  cout << "here" << endl;
+  int x = rnd -> next();
+  cout << x << endl;
+  unordered_set <int> s = fromArray(rnd -> generate_array(x));
+  while (!b.check_PIDS(s)){
+    cout << "here" << endl;
+    s = fromArray(rnd -> generate_array(x));
+  }
   return s;
 }
 
@@ -113,8 +125,9 @@ void hillClimbing (unordered_set <int>& s){
     for (unordered_set<int> v : n){
       int next = calcHeuristics(v);
       if (curHeur > next){
+        cout << next << endl;
         foundMin = true;
-        s = v; curHeur = next;
+        s = v; curHeur = next; continue;
       }
     }
   }
@@ -197,7 +210,16 @@ int main( int argc, char **argv ) {
 
         // HERE GOES YOUR LOCAL SEARCH METHOD
         unordered_set <int> sAux = initialSolution();
+        for (int s : sAux) {
+          cout << s << " ";
+        }
+
         hillClimbing(sAux);
+
+        for (int s : sAux) {
+          cout << s << " ";
+        }
+        cout << endl;
 
         // The starting solution for local search may be randomly generated,
         // or you may incorporate your greedy heuristic in order to produce
@@ -218,6 +240,10 @@ int main( int argc, char **argv ) {
         // times[na] = ct;
 
         cout << "end application " << na + 1 << endl;
+        for (int s : sAux){
+          cout << s << " ";
+        }
+        cout << endl;
     }
 
     // calculating the average of the results and computation times, and
