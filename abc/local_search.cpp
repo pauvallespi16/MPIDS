@@ -19,7 +19,6 @@
 
 #include "Timer.h"
 #include "Random.h"
-#include "Basics.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -41,7 +40,6 @@
 // global variables concerning the random number generator (in case needed)
 time_t t;
 Random* rnd;
-Basics b;
 
 // Data structures for the problem data
 int n_of_nodes;
@@ -76,25 +74,13 @@ unordered_set<int> fromArray (vector <int> x){
   return s;
 }
 
-unordered_set <int> initialSolution () {
-  cout << "here" << endl;
-  int x = rnd -> next();
-  cout << x << endl;
-  unordered_set <int> s = fromArray(rnd -> generate_array(x));
-  while (!b.check_PIDS(s)){
-    cout << "here" << endl;
-    s = fromArray(rnd -> generate_array(x));
-  }
-  return s;
-}
-
 bool addNodeToSolution (unordered_set<int>& s, int n) {
-  if (s.find(n) == s.end() && b.check_PIDS(s)) { s.insert(n); return true; }
+  //if (s.find(n) == s.end() && b.check_PIDS(s)) { s.insert(n); return true; }
   return false;
 }
 
 bool removeAddToSolution (unordered_set<int>& s, int n) {
-  if (s.find(n) != s.end() && b.check_PIDS(s)) { s.erase(n); return true; }
+  //if (s.find(n) != s.end() && b.check_PIDS(s)) { s.erase(n); return true; }
   return false;
 }
 
@@ -208,9 +194,11 @@ int main( int argc, char **argv ) {
 
         cout << "start application " << na + 1 << endl;
 
+        //greedy g;
+
         // HERE GOES YOUR LOCAL SEARCH METHOD
-        unordered_set <int> sAux = initialSolution();
-        for (int s : sAux) {
+        //g.neighbors = greedy();
+        /*for (int s : sAux) {
           cout << s << " ";
         }
 
@@ -219,7 +207,7 @@ int main( int argc, char **argv ) {
         for (int s : sAux) {
           cout << s << " ";
         }
-        cout << endl;
+        cout << endl;*/
 
         // The starting solution for local search may be randomly generated,
         // or you may incorporate your greedy heuristic in order to produce
@@ -239,11 +227,11 @@ int main( int argc, char **argv ) {
         // measured once the local minimum is reached) in vector times:
         // times[na] = ct;
 
-        cout << "end application " << na + 1 << endl;
+        /*cout << "end application " << na + 1 << endl;
         for (int s : sAux){
           cout << s << " ";
         }
-        cout << endl;
+        cout << endl;*/
     }
 
     // calculating the average of the results and computation times, and
