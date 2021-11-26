@@ -119,8 +119,8 @@ bool check_MPIDS(unordered_set <int> subset) {
 bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
     for (int node : node_neighbors) {
         if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
-            for (int node : node_neighbors)
-                neighbors_popularity[node]++;
+            for (int neighbor : node_neighbors)
+                neighbors_popularity[neighbor]++;
             return true;
         }
     }
@@ -187,20 +187,23 @@ unordered_set<int> greedy() {
     // if counting works: 
     // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
 
+    for (auto n : neighbors[3835]) cout << neighbors[n].size() << endl;
     int pos = neighbors.size()-1;
-    while (pos >= 0 and neighbors[index_array[pos]].size() == 0) pos--;
+    while (pos >= 0 and neighbors[index_array[pos]].size() == 0) --pos;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 1) {
         auto it = neighbors[index_array[pos]].begin();
-        solution.insert(index_array[*it]);
-        cout << index_array[pos] << " " << *it << endl;
-        neighbors_popularity[index_array[pos]]++;
-        pos--;
+        solution.insert(*it);
+        for (int neighbor : neighbors[*it]) {
+            neighbors_popularity[neighbor]++;
+        }
+        --pos;
     }
 
-    
-    for (int top = 0; top <= pos; top++) {
-        if (check_adjacent_neighbors(neighbors[index_array[top]])) {
-            solution.insert(index_array[top]);
+    for (int top = 0; top <= neighbors.size()-1; top++) {
+        if (solution.find(index_array[top]) == solution.end()) {
+            if (check_adjacent_neighbors(neighbors[index_array[top]])) {
+                solution.insert(index_array[top]);
+            }
         }
     }
 
@@ -226,9 +229,6 @@ unordered_set<int> remove_nodes(unordered_set<int> solution) {
 
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
-
-    // if counting works: 
-    // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
     
     for (int top = 0; top < neighbors.size(); top++) {
         if (can_remove(neighbors[index_array[top]])) {
