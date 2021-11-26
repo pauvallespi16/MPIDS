@@ -193,9 +193,21 @@ unordered_set<int> greedy() {
     while (pos >= 0 and neighbors[index_array[pos]].size() == 0) --pos;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 1) {
         auto it = neighbors[index_array[pos]].begin();
-        solution.insert(*it);
-        for (int neighbor : neighbors[*it]) {
-            neighbors_popularity[neighbor]++;
+        if (solution.find(*it) == solution.end()) {
+            solution.insert(*it);
+            for (int neighbor : neighbors[*it]) {
+                neighbors_popularity[neighbor]++;
+            }
+            /*if (neighbors[*it].size() == 2) {
+                for (int n : neighbors[*it]) {
+                    if (n != index_array[pos]) {
+                        solution.insert(n);
+                        for (int nb : neighbors[n]) {
+                            neighbors_popularity[nb]++;
+                        }
+                    }
+                }
+            }*/
         }
         --pos;
     }
