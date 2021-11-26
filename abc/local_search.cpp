@@ -37,6 +37,7 @@
 #include <unordered_set>
 #include <limits>
 #include <iomanip>
+#include <climits> 
 
 // global variables concerning the random number generator (in case needed)
 time_t t;
