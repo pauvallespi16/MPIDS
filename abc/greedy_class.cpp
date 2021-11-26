@@ -93,7 +93,6 @@ unordered_set<int> greedy() {
     for (int i = 0; i < neighbor.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
 
-    for (auto n : neighbor[3835]) cout << neighbor[n].size() << endl;
     int pos = neighbor.size()-1;
     while (pos >= 0 and neighbor[index_array[pos]].size() == 0) --pos;
     while (pos >= 0 and neighbor[index_array[pos]].size() == 1) {
