@@ -1,4 +1,4 @@
-TARGET = greedy local_search
+TARGET = greedy local_search basics
 CXXFLAGS = -ansi -O3 -fpermissive -std=c++17
 OBJS = Random.o Timer.o
 CPLOBJS = Random.o Timer.o
@@ -18,6 +18,9 @@ greedy: greedy.cpp $(OBJS)
 
 local_search: local_search.cpp $(OBJS)
 	${CCC} ${CXXFLAGS} -o $@ $^
+
+basics: basics.cpp $(OBJS)
+		${CCC} ${CXXFLAGS} -o $@ $^
 
 clean:
 	@rm -f *~ *.o ${TARGET} core

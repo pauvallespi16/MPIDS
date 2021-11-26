@@ -19,7 +19,7 @@
 #define VERBOSE(x) x
 #define VERYVERBOSE(x)
 
-/* pseudo-random number generator as proposed in numerical recipes in C 
+/* pseudo-random number generator as proposed in numerical recipes in C
    Input:   a long value; has to be the seed variable
    Output:  a pseudo-random number uniformly distributed in [0,1]
    Side effects: changes the value of the input variable, must be this way
@@ -42,11 +42,11 @@ vector<int> Random::generate_array(const int& size) {
 
    //v = (long int*) malloc( size * sizeof(long int) );
 
-   for ( i = 0 ; i < size; i++ ) 
+   for ( i = 0 ; i < size; i++ )
      v[i] = i;
 
    for ( i = 0 ; i < size-1 ; i++) {
-     j = (int) ( ran01( &seed ) * (size - i)); 
+     j = (int) ( ran01( &seed ) * (size - i));
      //assert( i + j < size );
      help = v[i];
      v[i] = v[i+j];
