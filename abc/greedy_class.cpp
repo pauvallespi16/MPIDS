@@ -151,3 +151,7 @@ unordered_set<int> remove_nodes(unordered_set<int> solution) {
 void setNeighbor (vector <unordered_set<int>> s){
   neighbor = s;
 }
+
+vector<int> getNeighborsPopularity() {
+    return neighbor_popularity;
+}
