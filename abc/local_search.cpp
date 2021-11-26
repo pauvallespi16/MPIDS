@@ -58,10 +58,16 @@ int n_apps = 1;
 int dummy_integer_parameter = 0;
 int dummy_double_parameter = 0.0;
 
+//heuristics
+bool modified;
+int node1, node2; //node1 is added/removed, node2 is for switch added
+string op;
+int incoming_colored_nodes;
+
 //simulated annealing
 double T = 1;
-const double Tmin = .0001;
-const double alpha = 0.9;
+const double Tmin = 0.0001;
+const double alpha = 0.95;
 const double numIterations = 100;
 
 inline int stoi(string &s) {
@@ -81,27 +87,74 @@ unordered_set<int> fromArray (vector <int> x){
 }
 
 bool addNodeToSolution (unordered_set<int>& s, int n) {
-  if (s.find(n) == s.end()) { s.insert(n); return true; }
-  return false;
-}
-
-bool removeAddToSolution (unordered_set<int>& s, int n) {
-  if (s.find(n) != s.end()) { s.erase(n); return true; }
-  return false;
-}
-
-double calcHeuristics (unordered_set <int>& subset){
-  int count_nodes = 0;
-  for (unordered_set <int> s : neighbors){
-      int count = 0;
-      for (int i : s) {
-          if (subset.find(i) != subset.end())
-              count++;
-      }
-      if (count < s.size()/2.f) return INT_MAX;
-      else count_nodes += count;
+  if (s.find(n) == s.end()) { 
+    node1 = n;
+    modified = true;
+    op = "add";  
+    s.insert(n); return true; 
   }
-  return count_nodes/(double)n_of_arcs;
+  modified = false;
+  return false;
+}
+
+bool removeFromSolution (unordered_set<int>& s, int n) {
+  if (s.find(n) != s.end()) { 
+    node1 = n;
+    modified = true;
+    op = "remove";
+    s.erase(n); return true; 
+  }
+  modified = false;
+  return false;
+}
+
+bool switchNodes (unordered_set<int>& s, int n1, int n2){
+  if (s.find(n1) != s.end() && s.find(n2) == s.end()) { 
+    s.erase(n1); s.insert(n2);
+    node1 = n1; node2 = n2;
+    modified = true;
+    op = "switch";
+    return true;
+  }
+  modified = false;
+  return false;
+}
+
+int calcHeuristics (unordered_set<int> sAux){
+  if (!modified) return incoming_colored_nodes;
+
+  if (op == "add")
+    incoming_colored_nodes += neighbors[node1].size();
+
+  else if (op == "remove"){
+    incoming_colored_nodes -= neighbors[node1].size();
+
+    for (int x : neighbors[node1]){
+      int count = 0;
+      for (int i : neighbors[x]){
+        if (sAux.find(i) != sAux.end())
+          count++;
+      }
+      if (count < sAux.size()/2.f) incoming_colored_nodes += neighbor.size();
+    }
+  }
+
+  else if (op == "switch"){
+    incoming_colored_nodes -= neighbors[node1].size();
+
+    for (int x : neighbors[node1]){
+      int count = 0;
+      for (int i : neighbors[x]){
+        if (sAux.find(i) != sAux.end())
+          count++;
+      }
+      if (count < sAux.size()/2.f) incoming_colored_nodes += neighbor.size();
+    }
+
+    incoming_colored_nodes += neighbors[node2].size();
+  }
+
+  return incoming_colored_nodes;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,20 +162,18 @@ double calcHeuristics (unordered_set <int>& subset){
 ///////////////////////////////////////////////////////////////////////////////
 
 unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
-  int x = rnd -> next(); // 0..1
+  int x = rnd -> next()*3; // 0..1
   if (x == 0){
     int n = rnd -> next()*neighbors.size();
-    while (s.find(n) != s.end()) {
-      n = rnd -> next()*neighbors.size();
-      addNodeToSolution(s, n);
-    }
+    addNodeToSolution(s, n);
   }
-  else {
+  else if (x == 1) {
     int n = rnd -> next()*neighbors.size();
-    while (s.find(n) == s.end()) {
-      n = rnd -> next()*neighbors.size();
-      addNodeToSolution(s, n);
-    }
+    removeFromSolution(s, n);
+  } else {
+    int n1 = rnd -> next()*neighbors.size();
+    int n2 = rnd -> next()*neighbors.size();
+    switchNodes(s, n1, n2);
   }
   return s;
 }
@@ -133,13 +184,14 @@ unordered_set <int> simulatedAnnealing (unordered_set <int> s){
   double min = INT_MAX;
 
   unordered_set <int> currSol = s;
-  double curr = calcHeuristics(s);
+  double curr = calcHeuristics(currSol);
 
   while (T > Tmin) {
     for (int i=0; i<numIterations; i++){
       if (curr < min){
         min = curr;
         minS = currSol;
+        cout << "here" << endl;
       }
 
       unordered_set <int> neigh = nextNeighborSimulated(currSol);
@@ -161,14 +213,31 @@ unordered_set <int> simulatedAnnealing (unordered_set <int> s){
 //                               HILL CLIMBING                               //
 ///////////////////////////////////////////////////////////////////////////////
 
-void findNeighborsHillClimbing (unordered_set <int> s, vector <unordered_set<int>>& n){
+void findNeighborsHillClimbing (unordered_set <int> s, 
+  vector <unordered_set<int>>& n, vector <int>& heurs){
   unordered_set <int> x;
   for (int i = 0; i < neighbors.size(); i++){
     x = s;
-    if (addNodeToSolution (x, i)) n.push_back(x);
+    if (addNodeToSolution (x, i)){
+      heurs.push_back(calcHeuristics(x));
+      n.push_back(x);
+    }
 
+    for (int j : s){
+      x = s;
+      if (switchNodes(x, i, j)){
+        heurs.push_back(calcHeuristics(x));
+        n.push_back(x);
+      }
+    }
+  }
+
+  for (int i : s){
     x = s;
-    if (removeAddToSolution (x, i)) n.push_back(x);
+    if (removeFromSolution(s, i)){
+      heurs.push_back(calcHeuristics(x));
+      n.push_back(x);
+    }
   }
 }
 
@@ -179,14 +248,16 @@ void hillClimbing (unordered_set <int>& s){
 
     int curHeur = calcHeuristics (s);
     vector <unordered_set<int>> n;
+    vector <int> hNext;
 
-    findNeighborsHillClimbing(s, n);
-    for (unordered_set<int> v : n){
-      int next = calcHeuristics(v);
+    findNeighborsHillClimbing(s, n, hNext);
+    for (int i=0; i < n.size(); i++){
+      int next = hNext[i];
+      //cout << next << endl;
       if (curHeur > next){
         cout << next << endl;
         foundMin = true;
-        s = v; curHeur = next; continue;
+        s = n[i]; curHeur = next; 
       }
     }
   }
@@ -256,6 +327,37 @@ int main( int argc, char **argv ) {
     }
     indata.close();
 
+    /*neighbors = vector<unordered_set<int> >(10);
+    neighbors[0] = {5, 7};
+    neighbors[1] = {2};
+    neighbors[2] = {1, 6, 8, 9};
+    neighbors[3] = {6};
+    neighbors[4] = {6};
+    neighbors[5] = {0, 7, 9};
+    neighbors[6] = {2, 3, 4};
+    neighbors[7] = {0, 5};
+    neighbors[8] = {2};
+    neighbors[9] = {2, 5};
+
+    n_of_arcs = 0;
+    for (unordered_set<int> s : neighbors) {
+      n_of_arcs += s.size();
+    }
+
+    setNeighbor (neighbors);
+    unordered_set <int> sAux = greedy();
+    for (int s : sAux) {
+      cout << s << " ";
+    }
+    cout << "done greedy" << endl;
+
+    hillClimbing(sAux);
+
+    for (int s : sAux) {
+      cout << s << " ";
+    }
+    cout << endl;*/
+
     // main loop over all applications of local search
     for (int na = 0; na < n_apps; ++na) {
 
@@ -275,6 +377,29 @@ int main( int argc, char **argv ) {
         setNeighbor (neighbors);
         unordered_set <int> sAux = greedy();
 
+        for (int s : sAux){
+          cout << s << " ";
+        }
+        cout << endl;
+
+        modified = false;
+        node1 = node2 = 0;
+        op = "";
+
+        incoming_colored_nodes = 0;
+        for (unordered_set <int> s : neighbors){
+            int count = 0;
+            for (int i : s) {
+                if (sAux.find(i) != sAux.end())
+                    count++;
+            }
+            if (count < s.size()/2.f) incoming_colored_nodes += neighbor.size();
+            else incoming_colored_nodes += count;
+        }
+
+        cout << "INITIAL: " << incoming_colored_nodes << endl;
+        cout << sAux.size() << endl;
+
         // HERE GOES YOUR LOCAL SEARCH METHOD
 
         //g.neighbors = greedy();
@@ -283,9 +408,16 @@ int main( int argc, char **argv ) {
 
         sAux = simulatedAnnealing(sAux);
 
-        for (int s : sAux) {
+        for (int s : sAux){
           cout << s << " ";
         }
+        cout << endl;
+
+        cout << sAux.size() << endl;
+
+        /*for (int s : sAux) {
+          cout << s << " ";
+        }*/
         cout << endl;
 
         // The starting solution for local search may be randomly generated,
@@ -306,8 +438,8 @@ int main( int argc, char **argv ) {
         // measured once the local minimum is reached) in vector times:
         // times[na] = ct;
 
-        /*cout << "end application " << na + 1 << endl;
-        for (int s : sAux){
+        cout << "end application " << na + 1 << endl;
+        /*for (int s : sAux){
           cout << s << " ";
         }
         cout << endl;*/
