@@ -45,7 +45,6 @@ Random* rnd;
 // Data structures for the problem data
 int n_of_nodes;
 int n_of_arcs;
-int total_edges;
 vector< unordered_set<int> > neighbors;
 
 // string for keeping the name of the input file
@@ -59,6 +58,11 @@ int n_apps = 1;
 int dummy_integer_parameter = 0;
 int dummy_double_parameter = 0.0;
 
+//simulated annealing
+double T = 1;
+const double Tmin = .0001;
+const double alpha = 0.9;
+const double numIterations = 100;
 
 inline int stoi(string &s) {
 
@@ -97,7 +101,7 @@ double calcHeuristics (unordered_set <int>& subset){
       if (count < s.size()/2.f) return INT_MAX;
       else count_nodes += count;
   }
-  return count_nodes/(double)total_edges;
+  return count_nodes/(double)n_of_arcs;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,12 +109,52 @@ double calcHeuristics (unordered_set <int>& subset){
 ///////////////////////////////////////////////////////////////////////////////
 
 unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
-
+  int x = rnd -> next(); // 0..1
+  if (x == 0){
+    int n = rnd -> next()*neighbors.size();
+    while (s.find(n) != s.end()) {
+      n = rnd -> next()*neighbors.size();
+      addNodeToSolution(s, n);
+    }
+  }
+  else {
+    int n = rnd -> next()*neighbors.size();
+    while (s.find(n) == s.end()) {
+      n = rnd -> next()*neighbors.size();
+      addNodeToSolution(s, n);
+    }
+  }
+  return s;
 }
 
 
-void simulatedAnnealing (unordered_set <int>& s){
+unordered_set <int> simulatedAnnealing (unordered_set <int> s){
+  unordered_set <int> minS;
+  double min = INT_MAX;
 
+  unordered_set <int> currSol = s;
+  double curr = calcHeuristics(s);
+
+  while (T > Tmin) {
+    for (int i=0; i<numIterations; i++){
+      if (curr < min){
+        min = curr;
+        minS = currSol;
+      }
+
+      unordered_set <int> neigh = nextNeighborSimulated(currSol);
+      double newNeigh = calcHeuristics(neigh);
+
+      double ap = pow(M_E, curr - newNeigh/T);
+      if (ap > rnd -> next()){
+        currSol = neigh;
+        curr = newNeigh;
+      }
+    }
+
+    T *= alpha;
+  }
+  return minS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -223,9 +267,9 @@ int main( int argc, char **argv ) {
 
         cout << "start application " << na + 1 << endl;
 
-        total_edges = 0;
+        n_of_arcs = 0;
         for (unordered_set<int> s : neighbors) {
-          total_edges += s.size();
+          n_of_arcs += s.size();
         }
 
         setNeighbor (neighbors);
@@ -234,18 +278,15 @@ int main( int argc, char **argv ) {
         // HERE GOES YOUR LOCAL SEARCH METHOD
 
         //g.neighbors = greedy();
-        for (int s : sAux) {
-          cout << s << " ";
-        }
 
         cout << rnd -> next() << endl;
 
-        /*hillClimbing(sAux);
+        sAux = simulatedAnnealing(sAux);
 
         for (int s : sAux) {
           cout << s << " ";
         }
-        cout << endl;*/
+        cout << endl;
 
         // The starting solution for local search may be randomly generated,
         // or you may incorporate your greedy heuristic in order to produce
