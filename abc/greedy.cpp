@@ -19,7 +19,6 @@
 
 #include "Timer.h"
 #include "Random.h"
-#include "greedy.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -188,7 +187,6 @@ unordered_set<int> greedy() {
     // if counting works:
     // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
 
-    for (auto n : neighbors[3835]) cout << neighbors[n].size() << endl;
     int pos = neighbors.size()-1;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 0) --pos;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 1) {

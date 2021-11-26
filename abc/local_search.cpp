@@ -86,9 +86,9 @@ bool removeAddToSolution (unordered_set<int>& s, int n) {
   return false;
 }
 
-double calcHeuristics (unordered_set <int>& s){
+double calcHeuristics (unordered_set <int>& subset){
   int count_nodes = 0;
-  for (set <int> s : neighbors){
+  for (unordered_set <int> s : neighbors){
       int count = 0;
       for (int i : s) {
           if (subset.find(i) != subset.end())
@@ -136,7 +136,7 @@ void hillClimbing (unordered_set <int>& s){
     int curHeur = calcHeuristics (s);
     vector <unordered_set<int>> n;
 
-    findNeighbors(s, n);
+    findNeighborsHillClimbing(s, n);
     for (unordered_set<int> v : n){
       int next = calcHeuristics(v);
       if (curHeur > next){
@@ -224,16 +224,17 @@ int main( int argc, char **argv ) {
         cout << "start application " << na + 1 << endl;
 
         total_edges = 0;
-        for (unordered_set<int> s : neighbor) {
+        for (unordered_set<int> s : neighbors) {
           total_edges += s.size();
         }
 
+        setNeighbor (neighbors);
         unordered_set <int> sAux = greedy();
 
         // HERE GOES YOUR LOCAL SEARCH METHOD
 
         //g.neighbors = greedy();
-        /*for (int s : sAux) {
+        for (int s : sAux) {
           cout << s << " ";
         }
 
