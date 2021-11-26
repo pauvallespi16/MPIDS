@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "greedy.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -194,15 +195,15 @@ int main( int argc, char **argv ) {
 
         cout << "start application " << na + 1 << endl;
 
-        //greedy g;
+        unordered_set <int> sAux = greedy();
 
         // HERE GOES YOUR LOCAL SEARCH METHOD
         //g.neighbors = greedy();
-        /*for (int s : sAux) {
+        for (int s : sAux) {
           cout << s << " ";
         }
 
-        hillClimbing(sAux);
+        /*hillClimbing(sAux);
 
         for (int s : sAux) {
           cout << s << " ";

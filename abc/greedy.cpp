@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "greedy.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -106,7 +107,7 @@ bool check_PIDS(unordered_set <int> subset) {
 
 bool check_MPIDS(unordered_set <int> subset) {
     if (!check_PIDS(subset)) return false;
-    
+
     unordered_set<int> aux = subset;
     for (int s : subset) {
         aux.erase(s);
@@ -182,9 +183,9 @@ unordered_set<int> greedy() {
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
 
-    // if counting works: 
+    // if counting works:
     // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
-    
+
     for (int top = 0; top < neighbors.size(); top++) {
         if (check_adjacent_neighbors(neighbors[index_array[top]])) {
             solution.insert(index_array[top]);
@@ -200,7 +201,7 @@ Main function
 *************/
 int main( int argc, char **argv ) {
     read_parameters(argc,argv);
-    
+
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(10) << std::fixed;
 
@@ -241,7 +242,7 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen:
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
-    /*    
+    /*
     neighbors = vector<unordered_set<int> >(10);
     neighbors[0] = {5, 7};
     neighbors[1] = {2};
@@ -253,8 +254,8 @@ int main( int argc, char **argv ) {
     neighbors[7] = {0, 5};
     neighbors[8] = {2};
     neighbors[9] = {2, 5};
-    
-    
+
+
     neighbors[0] = {1, 2};
     neighbors[1] = {0, 2};
     neighbors[2] = {0, 1, 3, 4};

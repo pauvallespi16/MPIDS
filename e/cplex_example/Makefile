@@ -5,8 +5,8 @@ CPLOBJS = Random.o Timer.o
 
 SYSTEM     = x86-64_linux
 LIBFORMAT  = static_pic
-CPLEXDIR      = /home/mjblesa/ILOG/CPLEX_Studio201/cplex
-CONCERTDIR    = /home/mjblesa/ILOG/CPLEX_Studio201/concert
+CPLEXDIR      = /Users/carlacampas/Desktop/UPC/A/MPIDS/CPLEX_Studio201/cplex
+CONCERTDIR    = /Users/carlacampas/Desktop/UPC/A/MPIDS/CPLEX_Studio201/concert
 GCC = gcc
 CCC = g++
 CCOPT = -m64 -O -fPIC -fexceptions -DNDEBUG -DIL_STD -std=c++17 -fpermissive -w
