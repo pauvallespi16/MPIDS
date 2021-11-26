@@ -19,7 +19,6 @@
 
 #include "Timer.h"
 #include "Random.h"
-#include "greedy.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
