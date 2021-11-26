@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "greedy_class.cpp"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -44,7 +45,8 @@ Random* rnd;
 // Data structures for the problem data
 int n_of_nodes;
 int n_of_arcs;
-vector< set<int> > neighbors;
+int total_edges;
+vector< unordered_set<int> > neighbors;
 
 // string for keeping the name of the input file
 string inputFile;
@@ -75,16 +77,47 @@ unordered_set<int> fromArray (vector <int> x){
 }
 
 bool addNodeToSolution (unordered_set<int>& s, int n) {
-  //if (s.find(n) == s.end() && b.check_PIDS(s)) { s.insert(n); return true; }
+  if (s.find(n) == s.end()) { s.insert(n); return true; }
   return false;
 }
 
 bool removeAddToSolution (unordered_set<int>& s, int n) {
-  //if (s.find(n) != s.end() && b.check_PIDS(s)) { s.erase(n); return true; }
+  if (s.find(n) != s.end()) { s.erase(n); return true; }
   return false;
 }
 
-void findNeighbors (unordered_set <int> s, vector <unordered_set<int>>& n){
+double calcHeuristics (unordered_set <int>& subset){
+  int count_nodes = 0;
+  for (unordered_set <int> s : neighbors){
+      int count = 0;
+      for (int i : s) {
+          if (subset.find(i) != subset.end())
+              count++;
+      }
+      if (count < s.size()/2.f) return INT_MAX;
+      else count_nodes += count;
+  }
+  return count_nodes/(double)total_edges;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//                          SIMULATED ANNEALING                              //
+///////////////////////////////////////////////////////////////////////////////
+
+unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
+
+}
+
+
+void simulatedAnnealing (unordered_set <int>& s){
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//                               HILL CLIMBING                               //
+///////////////////////////////////////////////////////////////////////////////
+
+void findNeighborsHillClimbing (unordered_set <int> s, vector <unordered_set<int>>& n){
   unordered_set <int> x;
   for (int i = 0; i < neighbors.size(); i++){
     x = s;
@@ -95,10 +128,6 @@ void findNeighbors (unordered_set <int> s, vector <unordered_set<int>>& n){
   }
 }
 
-int calcHeuristics (unordered_set <int>& s){
-  return s.size();
-}
-
 void hillClimbing (unordered_set <int>& s){
   bool foundMin = true;
   while (foundMin){
@@ -107,7 +136,7 @@ void hillClimbing (unordered_set <int>& s){
     int curHeur = calcHeuristics (s);
     vector <unordered_set<int>> n;
 
-    findNeighbors(s, n);
+    findNeighborsHillClimbing(s, n);
     for (unordered_set<int> v : n){
       int next = calcHeuristics(v);
       if (curHeur > next){
@@ -175,7 +204,7 @@ int main( int argc, char **argv ) {
 
     indata >> n_of_nodes;
     indata >> n_of_arcs;
-    neighbors = vector< set<int> >(n_of_nodes);
+    neighbors = vector< unordered_set<int> >(n_of_nodes);
     int u, v;
     while(indata >> u >> v) {
         neighbors[u - 1].insert(v - 1);
@@ -194,13 +223,22 @@ int main( int argc, char **argv ) {
 
         cout << "start application " << na + 1 << endl;
 
+        total_edges = 0;
+        for (unordered_set<int> s : neighbors) {
+          total_edges += s.size();
+        }
+
+        setNeighbor (neighbors);
         unordered_set <int> sAux = greedy();
 
         // HERE GOES YOUR LOCAL SEARCH METHOD
+
         //g.neighbors = greedy();
         for (int s : sAux) {
           cout << s << " ";
         }
+
+        cout << rnd -> next() << endl;
 
         /*hillClimbing(sAux);
 
