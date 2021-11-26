@@ -11,3 +11,4 @@ nodeX  nodeY
 where node1-node2, ..., nodeX-nodeY represent the edges
 
 ../input/instances/ego-facebook.txt
+
