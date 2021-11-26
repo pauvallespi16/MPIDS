@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "greedy.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -106,7 +107,7 @@ bool check_PIDS(unordered_set <int> subset) {
 
 bool check_MPIDS(unordered_set <int> subset) {
     if (!check_PIDS(subset)) return false;
-    
+
     unordered_set<int> aux = subset;
     for (int s : subset) {
         aux.erase(s);
@@ -119,14 +120,16 @@ bool check_MPIDS(unordered_set <int> subset) {
 bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
     for (int node : node_neighbors) {
         if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
-            for (int node : node_neighbors)
-                neighbors_popularity[node]++;
+            for (int neighbor : node_neighbors)
+                neighbors_popularity[neighbor]++;
             return true;
         }
     }
     return false;
 }
 
+
+//Cambiar subset a vector para guardar último nodo visitado y pasarlo por parámetro
 int find_removable_node(unordered_set <int> subset) {
     unordered_set<int> aux = subset;
     for (int s : subset) {
@@ -182,12 +185,67 @@ unordered_set<int> greedy() {
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
 
-    // if counting works: 
+    // if counting works:
     // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
-    
+
+    for (auto n : neighbors[3835]) cout << neighbors[n].size() << endl;
+    int pos = neighbors.size()-1;
+    while (pos >= 0 and neighbors[index_array[pos]].size() == 0) --pos;
+    while (pos >= 0 and neighbors[index_array[pos]].size() == 1) {
+        auto it = neighbors[index_array[pos]].begin();
+        if (solution.find(*it) == solution.end()) {
+            solution.insert(*it);
+            for (int neighbor : neighbors[*it]) {
+                neighbors_popularity[neighbor]++;
+            }
+            /*if (neighbors[*it].size() == 2) {
+                for (int n : neighbors[*it]) {
+                    if (n != index_array[pos]) {
+                        solution.insert(n);
+                        for (int nb : neighbors[n]) {
+                            neighbors_popularity[nb]++;
+                        }
+                    }
+                }
+            }*/
+        }
+        --pos;
+    }
+
+    for (int top = 0; top <= neighbors.size()-1; top++) {
+        if (solution.find(index_array[top]) == solution.end()) {
+            if (check_adjacent_neighbors(neighbors[index_array[top]])) {
+                solution.insert(index_array[top]);
+            }
+        }
+    }
+
+    if (check_PIDS(solution)) return solution;
+    return {};
+}
+
+
+bool can_remove(const unordered_set<int>& node_neighbors) {
+    for (int node : node_neighbors) {
+        if (neighbors_popularity[node]-1.f < neighbors[node].size()/2.f) {
+            return false;
+        }
+    }
+    for (int node : node_neighbors)
+                neighbors_popularity[node]--;
+
+    return true;
+}
+
+unordered_set<int> remove_nodes(unordered_set<int> solution) {
+    vector<int> index_array(neighbors.size());
+
+    for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
+    sort (index_array.begin(), index_array.end(), compare);
+
     for (int top = 0; top < neighbors.size(); top++) {
-        if (check_adjacent_neighbors(neighbors[index_array[top]])) {
-            solution.insert(index_array[top]);
+        if (can_remove(neighbors[index_array[top]])) {
+            solution.erase(index_array[top]);
         }
     }
 
@@ -200,7 +258,7 @@ Main function
 *************/
 int main( int argc, char **argv ) {
     read_parameters(argc,argv);
-    
+
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(10) << std::fixed;
 
@@ -241,7 +299,7 @@ int main( int argc, char **argv ) {
     // Then write the following to the screen:
     // cout << "value " << <value of your solution> << "\ttime " << ct << endl;
 
-    /*    
+    /*
     neighbors = vector<unordered_set<int> >(10);
     neighbors[0] = {5, 7};
     neighbors[1] = {2};
@@ -253,8 +311,8 @@ int main( int argc, char **argv ) {
     neighbors[7] = {0, 5};
     neighbors[8] = {2};
     neighbors[9] = {2, 5};
-    
-    
+
+
     neighbors[0] = {1, 2};
     neighbors[1] = {0, 2};
     neighbors[2] = {0, 1, 3, 4};
@@ -266,11 +324,13 @@ int main( int argc, char **argv ) {
 
     unordered_set<int> sol_set = greedy();
     if (check_PIDS(sol_set)) {
-        int node = find_removable_node(sol_set);
+        if (check_PIDS(sol_set)) cout << "NODES:" << sol_set.size() << endl;
+        /*int node = find_removable_node(sol_set);
         while (node != -1) {
             sol_set.erase(node);
             node = find_removable_node(sol_set);
-        }
+        }*/
+        sol_set = remove_nodes(sol_set);
         double ct = timer.elapsed_time(Timer::VIRTUAL);
         cout << "TIME:" << ct << endl;
 
