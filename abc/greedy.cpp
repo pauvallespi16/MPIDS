@@ -183,7 +183,6 @@ unordered_set<int> greedy() {
 
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
-
     // if counting works: 
     // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
 
@@ -196,16 +195,16 @@ unordered_set<int> greedy() {
             for (int neighbor : neighbors[*it]) {
                 neighbors_popularity[neighbor]++;
             }
-            /*if (neighbors[*it].size() == 2) {
+            if (neighbors[*it].size() == 2) {
                 for (int n : neighbors[*it]) {
-                    if (n != index_array[pos]) {
+                    if (n != index_array[pos] and solution.find(n) == solution.end()) {
                         solution.insert(n);
                         for (int nb : neighbors[n]) {
                             neighbors_popularity[nb]++;
                         }
                     }
                 }
-            }*/
+            }
         }
         --pos;
     }
