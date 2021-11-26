@@ -187,19 +187,26 @@ unordered_set<int> greedy() {
     // if counting works: 
     // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
 
-    for (auto n : neighbors[3835]) cout << neighbors[n].size() << endl;
     int pos = neighbors.size()-1;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 0) --pos;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 1) {
         auto it = neighbors[index_array[pos]].begin();
-        solution.insert(*it);
-        for (int neighbor : neighbors[*it]) {
-            neighbors_popularity[neighbor]++;
+        if (solution.find(*it) == solution.end()) {
+            solution.insert(*it);
+            for (int neighbor : neighbors[*it]) {
+                neighbors_popularity[neighbor]++;
+                /*if (neighbors[neighbor].size() == 2 and solution.find(neighbor) == solution.end()) {
+                    solution.insert(neighbor);
+                    for (int n : neighbors[neighbor]) {
+                        neighbors_popularity[n]++;
+                    }
+                }*/
+            }
         }
         --pos;
     }
 
-    for (int top = 0; top <= neighbors.size()-1; top++) {
+    for (int top = 0; top < neighbors.size() ; top++) {
         if (solution.find(index_array[top]) == solution.end()) {
             if (check_adjacent_neighbors(neighbors[index_array[top]])) {
                 solution.insert(index_array[top]);
@@ -229,10 +236,13 @@ unordered_set<int> remove_nodes(unordered_set<int> solution) {
 
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
+    reverse(index_array.begin(), index_array.end());
     
     for (int top = 0; top < neighbors.size(); top++) {
-        if (can_remove(neighbors[index_array[top]])) {
-            solution.erase(index_array[top]);
+        if (solution.find(index_array[top]) != solution.end()) {
+            if (can_remove(neighbors[index_array[top]])) {
+                solution.erase(index_array[top]);
+            }
         }
     }
 
