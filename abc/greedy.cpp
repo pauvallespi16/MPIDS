@@ -195,13 +195,17 @@ unordered_set<int> greedy() {
             solution.insert(*it);
             for (int neighbor : neighbors[*it]) {
                 neighbors_popularity[neighbor]++;
-                /*if (neighbors[neighbor].size() == 2 and solution.find(neighbor) == solution.end()) {
-                    solution.insert(neighbor);
-                    for (int n : neighbors[neighbor]) {
-                        neighbors_popularity[n]++;
-                    }
-                }*/
             }
+            /*if (neighbors[*it].size() == 2) {
+                for (int n : neighbors[*it]) {
+                    if (n != index_array[pos]) {
+                        solution.insert(n);
+                        for (int nb : neighbors[n]) {
+                            neighbors_popularity[nb]++;
+                        }
+                    }
+                }
+            }*/
         }
         --pos;
     }
