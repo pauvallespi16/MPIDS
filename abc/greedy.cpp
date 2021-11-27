@@ -288,7 +288,5 @@ int main( int argc, char **argv ) {
         cout << "TIME:" << ct << endl;
         
         if (check_PIDS(sol_set)) cout << "NODES:" << sol_set.size() << endl;
-        if (check_MPIDS(sol_set)) cout << "MINIMAL" << endl;
-        else cout << "NOT MINIMAL" << endl;
     }
 }
