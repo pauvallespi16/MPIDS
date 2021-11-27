@@ -5,6 +5,7 @@ echo Posibilities of names of files:
 echo    greedy
 echo    local_search
 echo    metaheuristic
+echo ----------------------------
 echo
 echo Introduce the name of the file
 read namefile
