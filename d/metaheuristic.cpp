@@ -209,7 +209,7 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
                     neighbors_popularity[neighbor]--;
                 }
                 solution.erase(node);
-                tabuAdd[node] = it + itInTabu;
+                tabuAdd[node] = itInTabu - it;
             }
         }
 
@@ -227,7 +227,7 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
                     neighbors_popularity[neighbor]++;
                 }
                 solution.insert(node);
-                tabuDelete[node] = it + itInTabu;
+                tabuDelete[node] = itInTabu - it;
             }
         }
 
