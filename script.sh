@@ -11,8 +11,7 @@ echo Introduce the name of the file
 read namefile
 echo
 
-if [[ "$namefile" == "greedy" ]] || [["$namefile" == "local_search"]]
-then
+if [[ "$namefile" == "greedy" || "$namefile" == "local_search" ]]; then
     path="abc"
 else
     path="e"
