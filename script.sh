@@ -1,11 +1,27 @@
-make
+#!/bin/bash
+echo
+echo ------- ALGORITHMICS -------
+echo Posibilities of names of files:
+echo    greedy
+echo    local_search
+echo    metaheuristic
 echo
 echo Introduce the name of the file
 read namefile
 echo
+
+if [[ "$namefile" == "greedy" ]] || [["$namefile" == "local_search"]]
+then
+    path="abc"
+else
+    path="e"
+fi
 echo Introduce number of executions
 read napps
 
+cd $path
+echo
+make
 echo
 echo graph_football
 ./$namefile -i ../input/instances/graph_football.txt n_apps $napps
