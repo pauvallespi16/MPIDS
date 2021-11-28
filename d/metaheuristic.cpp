@@ -19,6 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
+#include "../abc/greedy_class.cpp"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -34,8 +35,10 @@
 #include <vector>
 #include <set>
 #include <unordered_set>
-#include <limits>
+#include <unordered_map>
+#include <climits>
 #include <iomanip>
+#include <float.h>
 
 // global variables concerning the random number generator (in case needed)
 time_t t;
@@ -44,7 +47,14 @@ Random* rnd;
 // Data structures for the problem data
 int n_of_nodes;
 int n_of_arcs;
-vector< set<int> > neighbors;
+vector< unordered_set<int> > neighbors;
+unordered_map< int, int > tabuAdd; // <i, k> means that add the node i to solution is tabu for k steps
+unordered_map< int, int > tabuDelete; // <i, k> means that delete the node i to solution is tabu for k steps
+unordered_set<int> globalMinimum;
+double scoreGlobalMinimum;
+vector<int> neighbors_popularity;
+double percentage;
+
 
 // string for keeping the name of the input file
 string inputFile;
@@ -97,6 +107,153 @@ void read_parameters(int argc, char **argv) {
 }
 
 
+//////////////////////////////////////////////////////////////
+//                   HELPER FUNCTIONS                       //
+//////////////////////////////////////////////////////////////
+
+
+//Compute the percentage of neighbors in the solution
+void compute_percentage_neighbors(unordered_set<int> &solution) {
+
+    percentage = 0.0;
+    for (unordered_set<int> ns : neighbors) {
+        double percentage_node = 0.0;
+        for (int neighbor : ns) {
+            if (solution.find(neighbor) != solution.end()) {
+                percentage_node += 1.0;
+            }
+        }
+        percentage += percentage_node / ns.size();
+    }
+    scoreGlobalMinimum = percentage;
+}
+
+
+//Return if a node can be deleted in the solution
+bool canDelete(int node, unordered_set<int> &solution) {
+    for (int neighbor : neighbors[node]) {
+        if ((neighbors_popularity[neighbor] - 1.f) < neighbors[neighbor].size()/2.f) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+//////////////////////////////////////////////////////////////
+//                      HEURISTIC                           //
+//////////////////////////////////////////////////////////////
+
+
+//Heuristic used to find the best solution
+int computeHeuristic(const unordered_set<int>& solution) {
+    return solution.size() + percentage;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////
+//                      OPERATORS                           //
+//////////////////////////////////////////////////////////////
+
+//Operator to add a nodes
+double addNode(unordered_set<int>& solution, int node) {
+    solution.insert(node);
+    double percentage_aux = percentage;
+    for (int neighbor : neighbors[node]) {
+        neighbors_popularity[neighbor]++;
+        percentage_aux += 1.0 / neighbors[node].size();
+    }
+    return percentage_aux;
+}
+
+//Operetor to delete a node
+double deleteNode(unordered_set<int>& solution, int node) {
+    solution.erase(node);
+    double percentage_aux = percentage;
+    for (int neighbor : neighbors[node]) {
+        neighbors_popularity[neighbor]--;
+        percentage_aux -= 1.0 / neighbors[node].size();
+    }
+    return percentage_aux;
+}
+
+
+
+//////////////////////////////////////////////////////////////
+//                    TABU SERACH                           //
+//////////////////////////////////////////////////////////////
+
+//Tabu Search
+void tabuSearch(unordered_set<int> solution, Timer timer) {
+    int it = 0;
+    int itInTabu = INT_MAX;
+    double scoreLocalMinimum = DBL_MAX;
+    unordered_set<int> localBestSolution;
+    localBestSolution = globalMinimum;
+    vector<int> neighbors_popularity_min = neighbors_popularity;
+    int iiii = 0;
+    while (timer.elapsed_time(Timer::VIRTUAL) <= time_limit/1000) {
+        scoreLocalMinimum = DBL_MAX;
+        //Loop to add nodes
+        for (int node = 0; node < neighbors.size(); node++) {
+            if (solution.find(node) == solution.end() and tabuAdd[node] <= it) {
+                double percentage_aux = addNode(solution, node);
+                if (percentage_aux+localBestSolution.size() < scoreLocalMinimum+solution.size()) {
+                    scoreLocalMinimum = percentage_aux;
+                    localBestSolution = solution;
+                    neighbors_popularity_min = neighbors_popularity;
+                }
+                for (int neighbor : neighbors[node]) {
+                    neighbors_popularity[neighbor]--;
+                }
+                solution.erase(node);
+                tabuAdd[node] = itInTabu - it;
+            }
+        }
+
+        //Loop to delete nodes
+        for (int node = 0; node < neighbors.size(); node++) {
+            if (solution.find(node) != solution.end() and tabuDelete[node] <= it and canDelete(node, solution)) { //DESPUES PROBAR SIN EL CANDELETE!!!
+                double percentage_aux = deleteNode(solution, node);
+                if (percentage_aux+localBestSolution.size() < scoreLocalMinimum+solution.size()) {
+                    //cout << "scoreLocalMinimum: "<<scoreLocalMinimum<<", percentage_aux: "<<percentage_aux<<endl;
+                    scoreLocalMinimum = percentage_aux;
+                    localBestSolution = solution;
+                    neighbors_popularity_min = neighbors_popularity;
+                }
+                for (int neighbor : neighbors[node]) {
+                    neighbors_popularity[neighbor]++;
+                }
+                solution.insert(node);
+                tabuDelete[node] = itInTabu - it;
+            }
+        }
+
+        if (INT_MAX - itInTabu <= it) {
+            tabuAdd.clear();
+            tabuDelete.clear();
+            it = 0;
+        }
+
+        if (scoreLocalMinimum+solution.size() <= scoreGlobalMinimum+globalMinimum.size()) {
+            scoreGlobalMinimum = scoreLocalMinimum;
+            globalMinimum = localBestSolution;
+            neighbors_popularity = neighbors_popularity_min;
+            //cout << "scoreGlobalMinimum: "<<scoreGlobalMinimum<<endl;
+        }
+
+        solution = localBestSolution;
+        percentage = scoreLocalMinimum;
+        neighbors_popularity = neighbors_popularity_min;
+
+        iiii++;
+    }
+}
+
+
+
 /**********
 Main function
 **********/
@@ -127,7 +284,7 @@ int main( int argc, char **argv ) {
 
     indata >> n_of_nodes;
     indata >> n_of_arcs;
-    neighbors = vector< set<int> >(n_of_nodes);
+    neighbors = vector< unordered_set<int> >(n_of_nodes);
     int u, v;
     while (indata >> u >> v) {
         neighbors[u - 1].insert(v - 1);
@@ -147,6 +304,19 @@ int main( int argc, char **argv ) {
         cout << "start application " << na + 1 << endl;
 
         // HERE GOES YOUR METAHEURISTIC
+
+        setNeighbor (neighbors);
+        unordered_set <int> sAux = greedy();
+        globalMinimum = sAux;
+        neighbors_popularity = getNeighborsPopularity();
+        compute_percentage_neighbors(sAux);
+        cout << "Nodes greedy: " << sAux.size() << endl;
+
+        tabuSearch(sAux, timer);
+
+        cout << "Number of nodes: " << globalMinimum.size() << endl;
+
+        if (check_PIDS(globalMinimum)) cout << "YEEEEEES" << endl;
 
         // For implementing the metaheuristic you probably want to take profit 
         // from the greedy heuristic and/or the local search method that you 
