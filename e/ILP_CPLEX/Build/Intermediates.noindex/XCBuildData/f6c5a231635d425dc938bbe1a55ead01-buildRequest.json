@@ -1,0 +1,58 @@
+{
+  "_buildCommand2" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "buildCommand" : "build",
+  "configuredTargets" : [
+    {
+      "guid" : "21af3012c96ec8fde4f067e35a161db7c49298031a7eb750b060d475888b92fe"
+    }
+  ],
+  "containerPath" : "/Users/beaadc/Documents/GitHub/MPIDS/e/cplex.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "x86_64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx12.0",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "x86_64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/beaadc/Documents/GitHub/MPIDS/e/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/beaadc/Documents/GitHub/MPIDS/e/executable",
+      "derivedDataPath" : "/Users/beaadc/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/beaadc/Library/Developer/Xcode/DerivedData/cplex-abvyjhlunpkqivgjjjewqoqpcctp/Index/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/beaadc/Library/Developer/Xcode/DerivedData/cplex-abvyjhlunpkqivgjjjewqoqpcctp/Index/PrecompiledHeaders",
+      "pchPath" : "/Users/beaadc/Documents/GitHub/MPIDS/e/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "schemeCommand2" : "launch",
+  "shouldCollectMetrics" : false,
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
