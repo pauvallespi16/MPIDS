@@ -45,11 +45,21 @@ time_t t;
 Random* rnd;
 
 // Data structures for the problem data
+struct hash_pair {
+    template <class T1, class T2>
+    size_t operator()(const pair<T1, T2>& p) const
+    {
+        auto hash1 = hash<T1>{}(p.first);
+        auto hash2 = hash<T2>{}(p.second);
+        return hash1 ^ hash2;
+    }
+};
+
 int n_of_nodes;
 int n_of_arcs;
 vector< unordered_set<int> > neighbors;
-unordered_map< int, long > tabuAdd; // <i, k> means that add the node i to solution is tabu for k steps
-unordered_map< int, long > tabuDelete; // <i, k> means that delete the node i to solution is tabu for k steps
+unordered_map< pair<int,int>, long, hash_pair > tabuAdd; // <(i,j), k> means that add the node i to solution with score j is tabu for k steps
+unordered_map< pair<int,int>, long, hash_pair > tabuDelete; // <i, k> means that delete the node i to solution with score j is tabu for k steps
 unordered_set<int> globalMinimum;
 double scoreGlobalMinimum;
 vector<int> neighbors_popularity;
@@ -194,9 +204,9 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
 
     vector<int> neighbors_popularity_min = neighbors_popularity;
 
-    for (int n : solution) {
+    /*for (int n : solution) {
         tabuAdd[n] = neighbors.size();
-    }
+    }*/
 
     while (timer.elapsed_time(Timer::VIRTUAL) <= time_limit) {
         int nd = -1;
@@ -208,9 +218,10 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
         for (int node = 0; node < neighbors.size(); node++) {
             if (solution.find(node) == solution.end()) {
                 double percentage_aux = addNode(solution, node);
-
-                if (tabuAdd[node] <= it || computeHeuristic(solution,percentage_aux) < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
-                    if (computeHeuristic(solution,percentage_aux) < computeHeuristic(localBestSolution,scoreLocalMinimum)) {
+                double currHeuristicVal = computeHeuristic(solution,percentage_aux);
+                cout << "TABU:" << tabuAdd[{node, currHeuristicVal}] << endl;
+                if (tabuAdd[{node, currHeuristicVal}] <= it || currHeuristicVal < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
+                    if (currHeuristicVal < computeHeuristic(localBestSolution,scoreLocalMinimum)) {
                         scoreLocalMinimum = percentage_aux;
                         localBestSolution = solution;
                         neighbors_popularity_min = neighbors_popularity;
@@ -228,27 +239,30 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
         //Loop to delete nodes
         for (int node = 0; node < neighbors.size(); node++) {
             if (solution.find(node) != solution.end()) { //DESPUES PROBAR SIN EL CANDELETE!!!
-                double percentage_aux = deleteNode(solution, node);
-                if (canDelete(node, solution) and (tabuDelete[node] <= it or computeHeuristic(solution,percentage_aux) < computeHeuristic(globalMinimum,scoreGlobalMinimum))) {
-                    if (computeHeuristic(solution,percentage_aux) < computeHeuristic(localBestSolution,scoreLocalMinimum)) {
-                        scoreLocalMinimum = percentage_aux;
-                        localBestSolution = solution;
-                        neighbors_popularity_min = neighbors_popularity;
-                        del = true;
-                        nd = node;
-                    }   
+                if (canDelete(node, solution)) {
+                    double percentage_aux = deleteNode(solution, node);
+                    double currHeuristicVal = computeHeuristic(solution,percentage_aux);
+                    if (tabuDelete[{node, currHeuristicVal}] <= it or currHeuristicVal < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
+                        if (computeHeuristic(solution,percentage_aux) < computeHeuristic(localBestSolution,scoreLocalMinimum)) {
+                            scoreLocalMinimum = percentage_aux;
+                            localBestSolution = solution;
+                            neighbors_popularity_min = neighbors_popularity;
+                            del = true;
+                            nd = node;
+                        }   
+                    }
+                    for (int neighbor : neighbors[node]) {
+                        neighbors_popularity[neighbor]++;
+                    }
+                    solution.insert(node);
                 }
-                for (int neighbor : neighbors[node]) {
-                    neighbors_popularity[neighbor]++;
-                }
-                solution.insert(node);
             }
         }
 
-        if (LONG_MAX - itInTabu <= (long) iter) {
+        if (LONG_MAX - itInTabu <= (long) it) {
             tabuAdd.clear();
             tabuDelete.clear();
-            iter = 0;
+            it = 0;
             cout << "Big num" << endl;
         }
 
@@ -267,10 +281,10 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
             percentage = scoreLocalMinimum;
             neighbors_popularity = neighbors_popularity_min;
             if (del) {
-                tabuDelete[nd] = itInTabu + it;
+                tabuDelete[{nd, percentage}] = itInTabu + it;
             }
             else if (add) {
-                tabuAdd[nd] = itInTabu + it;
+                tabuAdd[{nd, percentage}] = itInTabu + it;
             }
         }
         cout << "NODE:"<< nd << endl;
