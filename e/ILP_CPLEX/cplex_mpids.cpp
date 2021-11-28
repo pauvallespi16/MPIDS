@@ -46,7 +46,7 @@ vector< set<int> > neighbors; // a vector that contains the set of neighbors of 
 
 // string for keeping the name of the input file.
 //CHANGE IT TO THE ABS PATH OF THE INSTANCE FOLDER IN YOUR COMPUTER IF IT DOES NOT WORK
-string inputFile = "../../../input/instances/";
+string inputFile = "../../../../input/instances/";
 
 
 // time limit for CPLEX (can be supplied to the algorithm via the -t comand line parameter)
