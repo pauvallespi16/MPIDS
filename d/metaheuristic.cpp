@@ -150,9 +150,6 @@ int computeHeuristic(const unordered_set<int>& solution) {
     return solution.size() + percentage;
 }
 
-
-
-
 //////////////////////////////////////////////////////////////
 //                      OPERATORS                           //
 //////////////////////////////////////////////////////////////
