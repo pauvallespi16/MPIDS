@@ -126,7 +126,7 @@ int calcHeuristics (unordered_set<int> sAux){
 
   int new_heuristic = incoming_colored_nodes;
 
-  if (op == "add")
+  if (op == "add") {
     new_heuristic += neighbors[node1].size();
 
     for (int x : neighbors[node1]){
@@ -135,8 +135,9 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if ((count - 1) < sAux.size()/2.f) new_heuristic -= neighbor.size();
+      if ((count - 1) < sAux.size()/2.f && count < sAux.size()/2.f) new_heuristic -= neighbor.size();
     }
+  }
 
   else if (op == "remove"){
     new_heuristic -= neighbors[node1].size();
@@ -191,7 +192,8 @@ unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
   else if (x == 1) {
     int n = rnd -> next()*neighbors.size();
     removeFromSolution(s, n);
-  } else {
+  } 
+  else {
     int n1 = rnd -> next()*neighbors.size();
     int n2 = rnd -> next()*neighbors.size();
     switchNodes(s, n1, n2);
@@ -210,6 +212,8 @@ unordered_set <int> simulatedAnnealing (unordered_set <int> s){
   while (T > Tmin) {
     for (int i=0; i<numIterations; i++){
       if (curr < min){
+        cout << curr << " " << min << endl;
+        cout << currSol.size() << " " << minS.size() << endl;
         min = curr;
         minS = currSol;
       }
@@ -254,7 +258,7 @@ void findNeighborsHillClimbing (const unordered_set <int>& s,
 
   for (int i : s){
     x = s;
-    if (removeFromSolution(s, i)){
+    if (removeFromSolution(x, i)){
       heurs.push_back(calcHeuristics(x));
       n.push_back(x);
     }
@@ -412,7 +416,8 @@ int main( int argc, char **argv ) {
 
         // HERE GOES YOUR LOCAL SEARCH METHOD
 
-        hillClimbing(sAux);
+        sAux = simulatedAnnealing(sAux);
+        //hillClimbing(sAux);
 
         double ct = timer.elapsed_time(Timer::VIRTUAL);
         // The starting solution for local search may be randomly generated,
