@@ -54,6 +54,20 @@ bool check_MPIDS(unordered_set <int> subset) {
     return true;
 }
 
+bool check_MPIDS_v2(unordered_set <int> subset) {
+    if (!check_PIDS(subset)) return false;
+    
+    for (int s : subset) {
+        int count = 0;
+        for (int node : neighbor[s]) {
+            if (neighbor_popularity[node]-1 >= neighbor[node].size()/2.f)
+                count++;
+        }
+        if (count == neighbor[s].size()) return false;
+    }
+    return true;
+}
+
 bool check_adjacent_neighbor(const unordered_set<int>& node_neighbor) {
     for (int node : node_neighbor) {
         if (neighbor_popularity[node] < neighbor[node].size()/2.f) {
@@ -64,23 +78,6 @@ bool check_adjacent_neighbor(const unordered_set<int>& node_neighbor) {
     }
     return false;
 }
-
-/*
-//Cambiar subset a vector para guardar último nodo visitado y pasarlo por parámetro
-int find_removable_node(unordered_set <int> subset) {
-    unordered_set<int> aux = subset;
-    for (int s : subset) {
-        aux.erase(s);
-        for (int n : neighbor[s]) {
-            neighbor_popularity[n]--;
-        }
-
-        if (!check_adjacent_neighbor(neighbor[s])) return s;
-        aux.insert(s);
-    }
-    return -1;
-}*/
-
 
 bool compare(int i, int j) {
     return neighbor[i].size() > neighbor[j].size();
@@ -118,6 +115,16 @@ unordered_set<int> greedyAux() {
     if (check_PIDS(solution)) return solution;
     return {};
 }
+
+void compute_popularity(unordered_set<int> solution) {
+    neighbor_popularity = vector<int>(neighbor.size(), 0);
+    for (int n : solution) {
+        for (int node : neighbor[n])
+            if (solution.find(node) != solution.end()) 
+                neighbor_popularity[n]++;
+    }
+}
+
 
 bool can_remove(const unordered_set<int>& node_neighbor) {
     for (int node : node_neighbor) {

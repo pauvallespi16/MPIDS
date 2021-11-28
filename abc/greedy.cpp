@@ -92,6 +92,10 @@ void read_parameters(int argc, char **argv) {
     }
 }
 
+//////////////////////////////////////////////////////////////
+//                   HELPER FUNCTIONS                       //
+//////////////////////////////////////////////////////////////
+
 bool check_PIDS(unordered_set <int> subset) {
     for (auto s : neighbors){
         int count = 0;
@@ -141,26 +145,14 @@ bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
     return false;
 }
 
-/*
-//Cambiar subset a vector para guardar último nodo visitado y pasarlo por parámetro
-int find_removable_node(unordered_set <int> subset) {
-    unordered_set<int> aux = subset;
-    for (int s : subset) {
-        aux.erase(s);
-        for (int n : neighbors[s]) {
-            neighbors_popularity[n]--;
-        }
-
-        if (!check_adjacent_neighbors(neighbors[s])) return s;
-        aux.insert(s);
-    }
-    return -1;
-}*/
-
-
 bool compare(int i, int j) {
     return neighbors[i].size() > neighbors[j].size();
 }
+
+
+//////////////////////////////////////////////////////////////
+//                         GREEDY                           //
+//////////////////////////////////////////////////////////////
 
 unordered_set<int> greedy() {
     unordered_set<int> solution;
