@@ -215,9 +215,7 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
             if (solution.find(node) == solution.end()) {
                 double percentage_aux = addNode(solution, node);
                 double currHeuristicVal = computeHeuristic(solution,percentage_aux);
-                //cout << (tabuAdd[{node, percentage_aux}] == 0 ? "no" : "yes") << endl;
-                if (tabuAdd[{node, percentage_aux}] <= it || currHeuristicVal < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
-                    //cout << "in" << endl;
+                if (tabuAdd[{node, 0}] <= it || currHeuristicVal < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
                     if (currHeuristicVal < computeHeuristic(localBestSolution,scoreLocalMinimum)) {
                         scoreLocalMinimum = percentage_aux;
                         localBestSolution = solution;
@@ -236,13 +234,11 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
 
         //Loop to delete nodes
         for (int node = 0; node < neighbors.size(); node++) {
-            if (solution.find(node) != solution.end()) { //DESPUES PROBAR SIN EL CANDELETE!!!
+            if (solution.find(node) != solution.end()) { 
                 if (canDelete(node, solution)) {
                     double percentage_aux = deleteNode(solution, node);
                     double currHeuristicVal = computeHeuristic(solution,percentage_aux);
-                    //cout << "DEL: " << node << " " << tabuDelete[{node, percentage_aux}] << it << endl;
                     
-                    cout << (tabuAdd[{node, percentage_aux}] == 0 ? "no" : "yes") << endl;
                     if (tabuAdd[{node, percentage_aux}] <= it or currHeuristicVal < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
                         if (computeHeuristic(solution,percentage_aux) < computeHeuristic(localBestSolution,scoreLocalMinimum)) {
                             scoreLocalMinimum = percentage_aux;
@@ -269,11 +265,9 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
         }
 
         if (computeHeuristic(solution,scoreLocalMinimum) < computeHeuristic(globalMinimum,scoreGlobalMinimum)) {
-            cout<<"scoreLocalMinimum: "<<scoreLocalMinimum<<", solution: "<<solution.size()<< ", scoreGlobalMinimum: " << scoreGlobalMinimum << ", globalMinimum: "<<globalMinimum.size()<<endl;
             scoreGlobalMinimum = scoreLocalMinimum;
             globalMinimum = localBestSolution;
             neighbors_popularity = neighbors_popularity_min;
-            cout << "scoreGlobalMinimum: "<<scoreGlobalMinimum<<endl;
         }
 
         cout<<"scoreLocalMinimum: "<<scoreLocalMinimum<<", solution: "<<solution.size()<< ", scoreGlobalMinimum: " << scoreGlobalMinimum << ", globalMinimum: "<<globalMinimum.size()<<endl;
@@ -283,15 +277,9 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
             percentage = scoreLocalMinimum;
             neighbors_popularity = neighbors_popularity_min;
             //cout << tabuDelete[{nd, percentage}] << " " << tabuAdd[{nd, percentage}] << endl;
-            if (del) {
-                tabuAdd[{nd, percentage}] = itInTabu + it;
-                cout << "DELETE: "  << nd << " " << percentage << " " << tabuDelete[{nd, percentage}] << endl;
-            }
-            else if (add) {
-                tabuAdd[{nd, percentage}] = itInTabu + it;
-                if (tabuDelete[{nd, percentage}] <= it+10) tabuDelete[{nd, percentage}] = it+10;
-                cout << "ADD: "  << nd << " " << percentage << " " << tabuAdd[{nd, percentage}] << endl;
-            }
+            if (del) tabuAdd[{nd, 0}] = itInTabu + it;
+            
+            else if (add) tabuAdd[{nd, 0}] = itInTabu + it;
         }
         cout << "NODE:"<< nd << endl;
         it++;
