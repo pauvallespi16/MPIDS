@@ -92,6 +92,10 @@ void read_parameters(int argc, char **argv) {
     }
 }
 
+//////////////////////////////////////////////////////////////
+//                   HELPER FUNCTIONS                       //
+//////////////////////////////////////////////////////////////
+
 bool check_PIDS(unordered_set <int> subset) {
     for (auto s : neighbors){
         int count = 0;
@@ -116,6 +120,20 @@ bool check_MPIDS(unordered_set <int> subset) {
     return true;
 }
 
+bool check_MPIDS_v2(const unordered_set<int>& subset) {
+    if (!check_PIDS(subset)) return false;
+    
+    for (int s : subset) {
+        int count = 0;
+        for (int node : neighbors[s]) {
+            if (neighbors_popularity[node]-1 >= neighbors[node].size()/2.f)
+                count++;
+        }
+        if (count == neighbors[s].size()) return false;
+    }
+    return true;
+}
+
 bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
     for (int node : node_neighbors) {
         if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
@@ -127,54 +145,14 @@ bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
     return false;
 }
 
-
-//Cambiar subset a vector para guardar último nodo visitado y pasarlo por parámetro
-int find_removable_node(unordered_set <int> subset) {
-    unordered_set<int> aux = subset;
-    for (int s : subset) {
-        aux.erase(s);
-        for (int n : neighbors[s]) {
-            neighbors_popularity[n]--;
-        }
-
-        if (!check_adjacent_neighbors(neighbors[s])) return s;
-        aux.insert(s);
-    }
-    return -1;
-}
-/*
-// Linear time sort
-vector<int> counting_sort(vector<int> array) {
-    int max = neighbors.size()-1;
-    vector<int> output (array.size());
-    vector<int> count (max+1, 0);
-    int size = max+1;
-    // Store the count of each element
-    for (int i = 0; i < size; i++) {
-        count[array[i]]++;
-    }
-
-    // Store the cummulative count of each array
-    for (int i = 1; i <= max; i++) {
-        count[i] += count[i - 1];
-    }
-
-    // Find the index of each element of the original array in count array, and
-    // place the elements in output array
-    for (int i = size - 1; i >= 0; i--) {
-        output[count[array[i]] - 1] = i;
-        count[array[i]]--;
-    }
-
-    reverse(output.begin(), output.end());
-    return output;
-}
-
-*/
-
 bool compare(int i, int j) {
     return neighbors[i].size() > neighbors[j].size();
 }
+
+
+//////////////////////////////////////////////////////////////
+//                         GREEDY                           //
+//////////////////////////////////////////////////////////////
 
 unordered_set<int> greedy() {
     unordered_set<int> solution;
@@ -183,8 +161,6 @@ unordered_set<int> greedy() {
 
     for (int i = 0; i < neighbors.size(); i++) index_array[i] = i;
     sort (index_array.begin(), index_array.end(), compare);
-    // if counting works: 
-    // index_array = counting_sort(index_array); //contains the nodes id from highest to lowest degree in O(n)
 
     int pos = neighbors.size()-1;
     while (pos >= 0 and neighbors[index_array[pos]].size() == 0) --pos;
@@ -194,16 +170,6 @@ unordered_set<int> greedy() {
             solution.insert(*it);
             for (int neighbor : neighbors[*it]) {
                 neighbors_popularity[neighbor]++;
-            }
-            if (neighbors[*it].size() == 2) {
-                for (int n : neighbors[*it]) {
-                    if (n != index_array[pos] and solution.find(n) == solution.end()) {
-                        solution.insert(n);
-                        for (int nb : neighbors[n]) {
-                            neighbors_popularity[nb]++;
-                        }
-                    }
-                }
             }
         }
         --pos;
@@ -221,7 +187,6 @@ unordered_set<int> greedy() {
     return {};
 }
 
-
 bool can_remove(const unordered_set<int>& node_neighbors) {
     for (int node : node_neighbors) {
         if (neighbors_popularity[node]-1.f < neighbors[node].size()/2.f) {
@@ -229,7 +194,7 @@ bool can_remove(const unordered_set<int>& node_neighbors) {
         }
     }
     for (int node : node_neighbors)
-                neighbors_popularity[node]--;
+        neighbors_popularity[node]--;
 
     return true;
 }
@@ -324,18 +289,10 @@ int main( int argc, char **argv ) {
 
     unordered_set<int> sol_set = greedy();
     if (check_PIDS(sol_set)) {
-        if (check_PIDS(sol_set)) cout << "NODES:" << sol_set.size() << endl;
-        /*int node = find_removable_node(sol_set);
-        while (node != -1) {
-            sol_set.erase(node);
-            node = find_removable_node(sol_set);
-        }*/
         sol_set = remove_nodes(sol_set);
         double ct = timer.elapsed_time(Timer::VIRTUAL);
         cout << "TIME:" << ct << endl;
         
         if (check_PIDS(sol_set)) cout << "NODES:" << sol_set.size() << endl;
-        if (check_MPIDS(sol_set)) cout << "MINIMAL" << endl;
-        else cout << "NOT MINIMAL" << endl;
     }
 }

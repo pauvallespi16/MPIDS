@@ -5,6 +5,7 @@
 using namespace std;
 
 vector<set<int> > neighbors;
+vector<int> neighbors_popularity;
 
 bool check_PIDS(unordered_set <int> subset) {
     for (set <int> s : neighbors){
@@ -20,6 +21,7 @@ bool check_PIDS(unordered_set <int> subset) {
 
 bool check_MPIDS(unordered_set <int> subset) {
     if (!check_PIDS(subset)) return false;
+
     unordered_set<int> aux = subset;
     for (int s : subset) {
         aux.erase(s);
@@ -27,6 +29,27 @@ bool check_MPIDS(unordered_set <int> subset) {
         aux.insert(s);
     }
     return true;
+}
+
+bool check_MPIDS_v2(unordered_set <int> subset) {
+    if (!check_PIDS(subset)) return false;
+    
+    for (int s : subset) {
+        int count = 0;
+        for (int node : neighbors[s]) {
+            if (neighbors_popularity[node]-1 >= neighbors[node].size()/2.f)
+                count++;
+        }
+        if (count == neighbors[s].size()) return false;
+    }
+    return true;
+}
+
+void compute_popularity(unordered_set<int> solution) {
+    for (int n : solution) {
+        for (int node : neighbors[n])
+            if (solution.find(node) != solution.end()) neighbors_popularity[n]++;
+    }
 }
 
 void setNeighbors (vector <set <int> > n) {
@@ -55,5 +78,10 @@ int main () {
   neighbors[5] = {4, 6};
   neighbors[6] = {5};
   neighbors[7] = {4};*/
+
   unordered_set<int> ss = {4, 6, 2, 9, 5, 0};
+  neighbors_popularity = vector<int>(neighbors.size(), 0);
+  compute_popularity(ss);
+  check_MPIDS_v2(ss) ? cout << "yes" : cout << "no";
+  cout << endl;
 }

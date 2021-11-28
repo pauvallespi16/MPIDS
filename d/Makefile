@@ -1,4 +1,4 @@
-TARGET = greedy local_search metaheuristic
+TARGET = metaheuristic
 CXXFLAGS = -ansi -O3 -fpermissive -std=c++17 
 OBJS = Random.o Timer.o
 CPLOBJS = Random.o Timer.o
