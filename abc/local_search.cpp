@@ -135,7 +135,7 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if ((count - 1) < sAux.size()/2.f && count < sAux.size()/2.f) new_heuristic -= neighbor.size();
+      if ((count - 1) < sAux.size()/2.f && count < sAux.size()/2.f) new_heuristic -= neighbors.size();
     }
   }
 
@@ -148,7 +148,7 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if (count < sAux.size()/2.f) new_heuristic += neighbor.size();
+      if (count < sAux.size()/2.f) new_heuristic += neighbors.size();
     }
   }
 
@@ -161,7 +161,7 @@ int calcHeuristics (unordered_set<int> sAux){
           if (sAux.find(i) != sAux.end())
             count++;
         }
-        if ((count - 1) < sAux.size()/2.f) new_heuristic -= neighbor.size();
+        if ((count - 1) < sAux.size()/2.f) new_heuristic -= neighbors.size();
     }
 
     for (int x : neighbors[node1]){
@@ -170,7 +170,7 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if (count < sAux.size()/2.f) new_heuristic += neighbor.size();
+      if (count < sAux.size()/2.f) new_heuristic += neighbors.size();
     }
 
     new_heuristic += neighbors[node2].size();
@@ -185,20 +185,23 @@ int calcHeuristics (unordered_set<int> sAux){
 
 unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
   int x = rnd -> next()*3; // 0..1
+  bool correct = true;
+  unordered_set<int> aux = s;
   if (x == 0){
     int n = rnd -> next()*neighbors.size();
-    addNodeToSolution(s, n);
+    if (!addNodeToSolution(aux, n)) correct = false;
   }
   else if (x == 1) {
     int n = rnd -> next()*neighbors.size();
-    removeFromSolution(s, n);
+    removeFromSolution(aux, n);
   } 
   else {
     int n1 = rnd -> next()*neighbors.size();
     int n2 = rnd -> next()*neighbors.size();
-    switchNodes(s, n1, n2);
+    switchNodes(aux, n1, n2);
   }
-  return s;
+  if (!correct) return s;
+  else return aux;
 }
 
 
@@ -365,7 +368,7 @@ int main( int argc, char **argv ) {
       n_of_arcs += s.size();
     }
 
-    setNeighbor (neighbors);
+    setNeighbors (neighbors);
     unordered_set <int> sAux = greedy();
     for (int s : sAux) {
       cout << s << " ";
@@ -410,7 +413,7 @@ int main( int argc, char **argv ) {
                 if (sAux.find(i) != sAux.end())
                     count++;
             }
-            if (count < s.size()/2.f) incoming_colored_nodes += neighbor.size();
+            if (count < s.size()/2.f) incoming_colored_nodes += neighbors.size();
             else incoming_colored_nodes += count;
         }
 
