@@ -113,19 +113,22 @@ void read_parameters(int argc, char **argv) {
 
 
 //Compute the percentage of neighbors in the solution
-void compute_percentage_neighbors(unordered_set<int> &solution) {
+void compute_percentage_neighbors(const unordered_set<int> &solution) {
 
     percentage = 0.0;
     for (unordered_set<int> ns : neighbors) {
         double percentage_node = 0.0;
         for (int neighbor : ns) {
             if (solution.find(neighbor) != solution.end()) {
-                percentage_node += 1.0;
+                percentage_node++;
             }
         }
-        percentage += percentage_node / ns.size();
+        if (percentage_node > 0.0) {
+            percentage += percentage_node / ns.size();
+        }
     }
     scoreGlobalMinimum = percentage;
+    cout << percentage << endl;
 }
 
 
@@ -190,7 +193,9 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
     unordered_set<int> localBestSolution;
     localBestSolution = globalMinimum;
     vector<int> neighbors_popularity_min = neighbors_popularity;
-    int iiii = 0;
+    bool add = false;
+    bool del = false;
+    int nd = 0;
     while (timer.elapsed_time(Timer::VIRTUAL) <= time_limit/1000) {
         scoreLocalMinimum = DBL_MAX;
         //Loop to add nodes
@@ -201,12 +206,15 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
                     scoreLocalMinimum = percentage_aux;
                     localBestSolution = solution;
                     neighbors_popularity_min = neighbors_popularity;
+                    //cout << "Add " << node << " " << scoreLocalMinimum << endl;
+                    add = true;
+                    nd = node;
                 }
                 for (int neighbor : neighbors[node]) {
                     neighbors_popularity[neighbor]--;
                 }
                 solution.erase(node);
-                tabuAdd[node] = itInTabu - it;
+                
             }
         }
 
@@ -219,33 +227,45 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
                     scoreLocalMinimum = percentage_aux;
                     localBestSolution = solution;
                     neighbors_popularity_min = neighbors_popularity;
+                    del = true;
+                    nd = node;
                 }
                 for (int neighbor : neighbors[node]) {
                     neighbors_popularity[neighbor]++;
                 }
                 solution.insert(node);
-                tabuDelete[node] = itInTabu - it;
+                tabuDelete[node] = itInTabu + it;
             }
         }
 
-        if (INT_MAX - itInTabu <= it) {
+        if (LONG_MAX - itInTabu <= (long) it) {
             tabuAdd.clear();
             tabuDelete.clear();
             it = 0;
+            cout << "Big num" << endl;
         }
 
-        if (scoreLocalMinimum+solution.size() <= scoreGlobalMinimum+globalMinimum.size()) {
+        /*if (it < 3) {
+            cout << "it: " << it << ", nd: "<<nd<< endl;
+            cout<<"scoreLocalMinimum: "<<scoreLocalMinimum<<", solution: "<<solution.size()<< ", scoreGlobalMinimum: " << scoreGlobalMinimum << ", globalMinimum: "<<globalMinimum.size()<<endl;
+        }*/
+
+        if (scoreLocalMinimum + solution.size() < scoreGlobalMinimum + globalMinimum.size()) {
+            cout<<"scoreLocalMinimum: "<<scoreLocalMinimum<<", solution: "<<solution.size()<< ", scoreGlobalMinimum: " << scoreGlobalMinimum << ", globalMinimum: "<<globalMinimum.size()<<endl;
             scoreGlobalMinimum = scoreLocalMinimum;
             globalMinimum = localBestSolution;
             neighbors_popularity = neighbors_popularity_min;
-            //cout << "scoreGlobalMinimum: "<<scoreGlobalMinimum<<endl;
+            cout << "scoreGlobalMinimum: "<<scoreGlobalMinimum<<endl;
         }
 
         solution = localBestSolution;
         percentage = scoreLocalMinimum;
         neighbors_popularity = neighbors_popularity_min;
 
-        iiii++;
+        if (del) tabuDelete[nd] = itInTabu + it;
+        else tabuAdd[nd] = itInTabu + it;
+
+        it++;
     }
 }
 
@@ -304,8 +324,9 @@ int main( int argc, char **argv ) {
 
         setNeighbor (neighbors);
         unordered_set <int> sAux = greedy();
+        sAux = remove_nodes(sAux);
         globalMinimum = sAux;
-        neighbors_popularity = getNeighborsPopularity();
+        neighbors_popularity = getNeighborPopularity();
         compute_percentage_neighbors(sAux);
         cout << "Nodes greedy: " << sAux.size() << endl;
 
