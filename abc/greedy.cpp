@@ -116,6 +116,20 @@ bool check_MPIDS(unordered_set <int> subset) {
     return true;
 }
 
+bool check_MPIDS_v2(const unordered_set<int>& subset) {
+    if (!check_PIDS(subset)) return false;
+    
+    for (int s : subset) {
+        int count = 0;
+        for (int node : neighbors[s]) {
+            if (neighbors_popularity[node]-1 >= neighbors[node].size()/2.f)
+                count++;
+        }
+        if (count == neighbors[s].size()) return false;
+    }
+    return true;
+}
+
 bool check_adjacent_neighbors(const unordered_set<int>& node_neighbors) {
     for (int node : node_neighbors) {
         if (neighbors_popularity[node] < neighbors[node].size()/2.f) {
