@@ -44,8 +44,9 @@ int n_of_nodes; // number of nodes in the input graph
 int n_of_arcs;  // number of edges in the input graph
 vector< set<int> > neighbors; // a vector that contains the set of neighbors of each node of the input graph
 
-// string for keeping the name of the input file. CHANGE IT TO THE ABS PATH OF THE INSTANCE FOLDER IN YOUR COMPUTER IF IT DOES NOT WORK
-string inputFile = "../input/instances/ego-fa";         //"/Users/beaadc/Documents/GitHub/MPIDS/input/instances/";
+// string for keeping the name of the input file.
+//CHANGE IT TO THE ABS PATH OF THE INSTANCE FOLDER IN YOUR COMPUTER IF IT DOES NOT WORK
+string inputFile = "../input/instances/";             //"../input/instances/";         //"/Users/beaadc/Documents/GitHub/MPIDS/input/instances/";
 
 // time limit for CPLEX (can be supplied to the algorithm via the -t comand line parameter)
 double time_limit = 3200.0;
