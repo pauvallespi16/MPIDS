@@ -398,28 +398,11 @@ int main( int argc, char **argv ) {
             else incoming_colored_nodes += count;
         }
 
-        cout << "INITIAL: " << incoming_colored_nodes << endl;
-        cout << sAux.size() << endl;
-
         // HERE GOES YOUR LOCAL SEARCH METHOD
 
-        //g.neighbors = greedy();
-
-        cout << rnd -> next() << endl;
-
-        sAux = simulatedAnnealing(sAux);
-
-        for (int s : sAux){
-          cout << s << " ";
-        }
-        cout << endl;
+        hillClimbing(sAux);
 
         cout << sAux.size() << endl;
-
-        /*for (int s : sAux) {
-          cout << s << " ";
-        }*/
-        cout << endl;
 
         // The starting solution for local search may be randomly generated,
         // or you may incorporate your greedy heuristic in order to produce
@@ -428,16 +411,15 @@ int main( int argc, char **argv ) {
         // Whenever you move to a new solution, first take the computation
         // time as explained above. Say you store it in variable ct.
         // Then, write the following to the screen:
-        // cout << "value " << <value of the current solution>;
-        // cout << "\ttime " << ct << endl;
+        cout << "\ttime " << ct << endl;
 
         // When a local minimum is reached, store the value of the
         // corresponding solution in vector results:
-        // results[na] = <value of the local minimum>;
+        results[na] = sAux.size();
 
         // Finally store the needed computation time (that is, the time
         // measured once the local minimum is reached) in vector times:
-        // times[na] = ct;
+        times[na] = ct;
 
         cout << "end application " << na + 1 << endl;
         /*for (int s : sAux){
