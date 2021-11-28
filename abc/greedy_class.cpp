@@ -162,6 +162,6 @@ void setNeighbor (vector <unordered_set<int>> s){
   neighbor = s;
 }
 
-vector<int> getneighborPopularity() {
+vector<int> getNeighborsPopularity() {
     return neighbor_popularity;
 }

@@ -188,8 +188,8 @@ int calcHeuristics (unordered_set<int> sAux){
 ///////////////////////////////////////////////////////////////////////////////
 
 unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
-  //int x = rnd -> next()*3; // 0..1
-  int x = 0;
+  int x = rnd -> next()*3; // 0..1
+  //int x = 0;
   bool correct = true;
   unordered_set<int> aux = s;
   if (x == 0){
