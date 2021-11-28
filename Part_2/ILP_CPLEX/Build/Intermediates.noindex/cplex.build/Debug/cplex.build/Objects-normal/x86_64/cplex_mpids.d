@@ -1,6 +1,7 @@
-dependencies: /Users/beaadc/Documents/GitHub/MPIDS/e/cplex_mpids.cpp \
-  /Users/beaadc/Documents/GitHub/MPIDS/e/Timer.h \
-  /Users/beaadc/Documents/GitHub/MPIDS/e/config.h \
+dependencies: \
+  /Users/beaadc/Documents/GitHub/MPIDS/e/ILP_CPLEX/cplex_mpids.cpp \
+  /Users/beaadc/Documents/GitHub/MPIDS/e/ILP_CPLEX/Timer.h \
+  /Users/beaadc/Documents/GitHub/MPIDS/e/ILP_CPLEX/config.h \
   /Applications/CPLEX_Studio201/cplex/include/ilcplex/ilocplex.h \
   /Applications/CPLEX_Studio201/concert/include/ilconcert/ilomodel.h \
   /Applications/CPLEX_Studio201/concert/include/ilconcert/iloalg.h \
