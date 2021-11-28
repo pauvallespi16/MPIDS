@@ -69,7 +69,7 @@ int incoming_colored_nodes;
 double T = 1;
 const double Tmin = 0.0001;
 const double alpha = 0.95;
-const double numIterations = 100;
+const double numIterations = 1000;
 
 inline int stoi(string &s) {
 
@@ -114,8 +114,7 @@ bool switchNodes (unordered_set<int>& s, int n1, int n2){
     s.erase(n1); s.insert(n2);
     node1 = n1; node2 = n2;
     modified = true;
-    op = "switch";
-    return true;
+    op = "switch"; return true;
   }
   modified = false;
   return false;
@@ -126,6 +125,8 @@ int calcHeuristics (unordered_set<int> sAux){
 
   int new_heuristic = incoming_colored_nodes;
 
+  //cout << op << " ";
+
   if (op == "add") {
     new_heuristic += neighbors[node1].size();
 
@@ -135,10 +136,12 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if ((count - 1) < sAux.size()/2.f && count < sAux.size()/2.f) new_heuristic -= neighbors.size();
+      if ((count - 1) < sAux.size()/2.f && count >= sAux.size()/2.f){
+        //cout << "here" << " " << x << " ";
+        new_heuristic -= neighbors.size();
+      }
     }
   }
-
   else if (op == "remove"){
     new_heuristic -= neighbors[node1].size();
 
@@ -151,7 +154,6 @@ int calcHeuristics (unordered_set<int> sAux){
       if (count < sAux.size()/2.f) new_heuristic += neighbors.size();
     }
   }
-
   else if (op == "switch"){
     new_heuristic -= neighbors[node1].size();
 
@@ -161,7 +163,7 @@ int calcHeuristics (unordered_set<int> sAux){
           if (sAux.find(i) != sAux.end())
             count++;
         }
-        if ((count - 1) < sAux.size()/2.f) new_heuristic -= neighbors.size();
+        if ((count - 1) < sAux.size()/2.f && count >= sAux.size()/2.f) new_heuristic -= neighbors.size();
     }
 
     for (int x : neighbors[node1]){
@@ -176,7 +178,9 @@ int calcHeuristics (unordered_set<int> sAux){
     new_heuristic += neighbors[node2].size();
   }
 
-  return new_heuristic;
+  //cout << new_heuristic << endl;
+
+  return new_heuristic + sAux.size();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,6 +189,7 @@ int calcHeuristics (unordered_set<int> sAux){
 
 unordered_set<int> nextNeighborSimulated (unordered_set<int> s){
   int x = rnd -> next()*3; // 0..1
+  //int x = 0;
   bool correct = true;
   unordered_set<int> aux = s;
   if (x == 0){
@@ -215,8 +220,6 @@ unordered_set <int> simulatedAnnealing (unordered_set <int> s){
   while (T > Tmin) {
     for (int i=0; i<numIterations; i++){
       if (curr < min){
-        cout << curr << " " << min << endl;
-        cout << currSol.size() << " " << minS.size() << endl;
         min = curr;
         minS = currSol;
       }
@@ -382,29 +385,28 @@ int main( int argc, char **argv ) {
     }
     cout << endl;*/
 
+    setNeighbor (neighbors);
+    unordered_set <int> start = greedy();
+
+    n_of_arcs = 0;
+    for (unordered_set<int> s : neighbors) 
+      n_of_arcs += s.size();
+
     // main loop over all applications of local search
     for (int na = 0; na < n_apps; ++na) {
-
         // the computation time starts now
         Timer timer;
-
-        // Example for requesting the elapsed computation time at any moment:
-
+        
         cout << "start application " << na + 1 << endl;
 
-        n_of_arcs = 0;
-        for (unordered_set<int> s : neighbors) {
-          n_of_arcs += s.size();
-        }
-
-        setNeighbor (neighbors);
-        unordered_set <int> sAux = greedy();
+        unordered_set <int> sAux = start;
 
         cout << "greedy " << sAux.size() << endl;
 
         modified = false;
         node1 = node2 = 0;
         op = "";
+        T = 1;
 
         incoming_colored_nodes = 0;
         for (unordered_set <int> s : neighbors){
@@ -421,6 +423,8 @@ int main( int argc, char **argv ) {
 
         sAux = simulatedAnnealing(sAux);
         //hillClimbing(sAux);
+
+        cout << (check_PIDS(sAux) ? "yes" : "no") << endl;
 
         double ct = timer.elapsed_time(Timer::VIRTUAL);
         // The starting solution for local search may be randomly generated,
