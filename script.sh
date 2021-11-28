@@ -13,20 +13,15 @@ read namefile
 echo
 
 if [[ "$namefile" == "greedy" || "$namefile" == "local_search" ]]; then
-    path="abc"
+    path="Part_1"
 else
-    if [[ "$namefile" == "metaheuristic" ]]; then 
-        path="d"
-    fi
-    if [[ "$namefile" == "cplex" ]]; then 
-        path="e"
-    fi
+    path="Part_2"
 fi
 echo Introduce number of executions
 read napps
 
 cd $path
-if [[ "$path" != "e" ]]; then 
+if [[ "$namefile" != "cplex" ]]; then 
     echo
     make
     echo
@@ -61,5 +56,6 @@ if [[ "$path" != "e" ]]; then
     ./$namefile -i ../input/instances/soc-gplus.txt -n_apps $napps
     echo
 else
+    cd ILP_CPLEX/executable/Debug/
     ./$namefile
 fi

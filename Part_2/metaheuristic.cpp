@@ -19,7 +19,7 @@
 
 #include "Timer.h"
 #include "Random.h"
-#include "../abc/greedy_class.cpp"
+#include "../Part_1/greedy_class.cpp"
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -70,7 +70,7 @@ double percentage;
 string inputFile;
 
 // computing time limit for each application of the metaheuristic
-double time_limit = 3200.0;
+double time_limit = 600.0;
 
 // number of applications of the metaheuristic
 int n_apps = 1;
@@ -135,7 +135,6 @@ void compute_percentage_neighbors(const unordered_set<int> &solution) {
         if (ns.size() > 0.0) {
             percentage += percentage_node / ns.size();
         }
-        cout << percentage << " ";
     }
     scoreGlobalMinimum = percentage;
 }
@@ -268,20 +267,17 @@ void tabuSearch(unordered_set<int> solution, Timer timer) {
             scoreGlobalMinimum = scoreLocalMinimum;
             globalMinimum = localBestSolution;
             neighbors_popularity = neighbors_popularity_min;
+            cout << "New global minimum: " << globalMinimum.size()<< endl;
         }
-
-        cout<<"scoreLocalMinimum: "<<scoreLocalMinimum<<", solution: "<<solution.size()<< ", scoreGlobalMinimum: " << scoreGlobalMinimum << ", globalMinimum: "<<globalMinimum.size()<<endl;
 
         if (nd != -1) {
             solution = localBestSolution;
             percentage = scoreLocalMinimum;
             neighbors_popularity = neighbors_popularity_min;
-            //cout << tabuDelete[{nd, percentage}] << " " << tabuAdd[{nd, percentage}] << endl;
             if (del) tabuAdd[{nd, 0}] = itInTabu + it;
             
             else if (add) tabuAdd[{nd, 0}] = itInTabu + it;
         }
-        cout << "NODE:"<< nd << endl;
         it++;
     }
 
