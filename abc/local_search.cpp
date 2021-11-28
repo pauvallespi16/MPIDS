@@ -124,11 +124,10 @@ bool switchNodes (unordered_set<int>& s, int n1, int n2){
 int calcHeuristics (unordered_set<int> sAux){
   if (!modified) return incoming_colored_nodes;
 
-  if (op == "add")
-    incoming_colored_nodes += neighbors[node1].size();
+  int new_heuristic = incoming_colored_nodes;
 
-  else if (op == "remove"){
-    incoming_colored_nodes -= neighbors[node1].size();
+  if (op == "add")
+    new_heuristic += neighbors[node1].size();
 
     for (int x : neighbors[node1]){
       int count = 0;
@@ -136,12 +135,33 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if (count < sAux.size()/2.f) incoming_colored_nodes += neighbor.size();
+      if ((count - 1) < sAux.size()/2.f) new_heuristic -= neighbor.size();
+    }
+
+  else if (op == "remove"){
+    new_heuristic -= neighbors[node1].size();
+
+    for (int x : neighbors[node1]){
+      int count = 0;
+      for (int i : neighbors[x]){
+        if (sAux.find(i) != sAux.end())
+          count++;
+      }
+      if (count < sAux.size()/2.f) new_heuristic += neighbor.size();
     }
   }
 
   else if (op == "switch"){
-    incoming_colored_nodes -= neighbors[node1].size();
+    new_heuristic -= neighbors[node1].size();
+
+    for (int x : neighbors[node1]){
+        int count = 0;
+        for (int i : neighbors[x]){
+          if (sAux.find(i) != sAux.end())
+            count++;
+        }
+        if ((count - 1) < sAux.size()/2.f) new_heuristic -= neighbor.size();
+    }
 
     for (int x : neighbors[node1]){
       int count = 0;
@@ -149,13 +169,13 @@ int calcHeuristics (unordered_set<int> sAux){
         if (sAux.find(i) != sAux.end())
           count++;
       }
-      if (count < sAux.size()/2.f) incoming_colored_nodes += neighbor.size();
+      if (count < sAux.size()/2.f) new_heuristic += neighbor.size();
     }
 
-    incoming_colored_nodes += neighbors[node2].size();
+    new_heuristic += neighbors[node2].size();
   }
 
-  return incoming_colored_nodes;
+  return new_heuristic;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -192,7 +212,6 @@ unordered_set <int> simulatedAnnealing (unordered_set <int> s){
       if (curr < min){
         min = curr;
         minS = currSol;
-        cout << "here" << endl;
       }
 
       unordered_set <int> neigh = nextNeighborSimulated(currSol);
@@ -214,7 +233,7 @@ unordered_set <int> simulatedAnnealing (unordered_set <int> s){
 //                               HILL CLIMBING                               //
 ///////////////////////////////////////////////////////////////////////////////
 
-void findNeighborsHillClimbing (unordered_set <int> s, 
+void findNeighborsHillClimbing (const unordered_set <int>& s, 
   vector <unordered_set<int>>& n, vector <int>& heurs){
   unordered_set <int> x;
   for (int i = 0; i < neighbors.size(); i++){
@@ -247,18 +266,15 @@ void hillClimbing (unordered_set <int>& s){
   while (foundMin){
     foundMin = false;
 
-    int curHeur = calcHeuristics (s);
     vector <unordered_set<int>> n;
     vector <int> hNext;
 
     findNeighborsHillClimbing(s, n, hNext);
     for (int i=0; i < n.size(); i++){
       int next = hNext[i];
-      //cout << next << endl;
-      if (curHeur > next){
-        cout << next << endl;
-        foundMin = true;
-        s = n[i]; curHeur = next; 
+      if (incoming_colored_nodes > next){
+        foundMin = true; s = n[i]; 
+        incoming_colored_nodes = next; 
       }
     }
   }
@@ -366,7 +382,6 @@ int main( int argc, char **argv ) {
         Timer timer;
 
         // Example for requesting the elapsed computation time at any moment:
-        // double ct = timer.elapsed_time(Timer::VIRTUAL);
 
         cout << "start application " << na + 1 << endl;
 
@@ -378,10 +393,7 @@ int main( int argc, char **argv ) {
         setNeighbor (neighbors);
         unordered_set <int> sAux = greedy();
 
-        for (int s : sAux){
-          cout << s << " ";
-        }
-        cout << endl;
+        cout << "greedy " << sAux.size() << endl;
 
         modified = false;
         node1 = node2 = 0;
@@ -402,8 +414,7 @@ int main( int argc, char **argv ) {
 
         hillClimbing(sAux);
 
-        cout << sAux.size() << endl;
-
+        double ct = timer.elapsed_time(Timer::VIRTUAL);
         // The starting solution for local search may be randomly generated,
         // or you may incorporate your greedy heuristic in order to produce
         // the starting solution.
@@ -411,6 +422,7 @@ int main( int argc, char **argv ) {
         // Whenever you move to a new solution, first take the computation
         // time as explained above. Say you store it in variable ct.
         // Then, write the following to the screen:
+        cout << "\tnodes " << sAux.size() << endl;
         cout << "\ttime " << ct << endl;
 
         // When a local minimum is reached, store the value of the
