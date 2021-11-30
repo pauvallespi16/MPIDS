@@ -1,7 +1,5 @@
 # MPIDS
 ------------------------ Información ------------------------
-Grupo: 1
-Estudiantes:
     Carla Campàs Gené
     Andrés Eduardo Bercowsky Rama
     Beatriz Gomes da Costa
